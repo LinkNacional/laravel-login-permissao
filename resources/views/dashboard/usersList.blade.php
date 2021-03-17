@@ -7,8 +7,20 @@
         <title>dashboard</title>
     </head>
     <body>
-        @foreach ($users as $user)
-        <p>{{$user->name}}</p>
-        @endforeach
+        <table style="width:100%">
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+            </tr>
+            
+            @foreach ($users as $user)
+            <tr>
+                <th>{{$user->name}}</th>
+                <th>{{$user->email}}</th>
+                <th><button>deletar</button></th>
+                <th><button>editar</button></th>
+            </tr>
+            @endforeach
+        </table>
     </body>
 </html>

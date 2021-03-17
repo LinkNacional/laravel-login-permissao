@@ -12,7 +12,7 @@ class verifyRegister {
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
      * @return mixed
-     */
+     */    
     public function handle(Request $request, Closure $next) {
         $validated = $request->validate([
             'name' => 'required',

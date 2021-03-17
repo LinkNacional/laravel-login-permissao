@@ -1,11 +1,11 @@
 <?php
 
-use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\userController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Models\User;
-use App\Http\Controllers\HomeController;
+use App\Models\Permission;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,36 +18,28 @@ use App\Http\Controllers\HomeController;
 |
 */
 
-Route::get('/login', function () {
-    return view('login.login');
-})->name('login');
+Route::get('/login',[UserController::class, 'loginView'])->name('login');
 
-// Route::get('/login', [HomeController::class, 'index'])->name('login');
-//->middleware('verified');
+Route::post('/login',[UserController::class, 'authenticate'])->middleware('verify.login');
 
-Route::post('/login',[userController::class, 'authenticate'])->middleware('verify.login');
+Route::get('/register', [UserController::class, 'registerView']);
 
-Route::get('/register', function () {
-    // foreach ($user->Permissions as $Permission) {
-    //     var_dump($Permission->name);
-    // }
-    return view('login.register',['permissions' => userController::getAllAuths()]);
-});
-
-Route::post('/register',[userController::class, 'register'])->middleware('verify.register');
+Route::post('/register',[userController::class, 'create'])->middleware('verify.register');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard.dashboard',['user' => Auth::user()]);
+        return view('dashboard.dashboard',['permissions' => Auth::user()->permissions]);
     })->name('dashboard');
 
-    Route::get('/dashboard/users', function () {
-        return view('dashboard.usersList',['users' => userController::getAll()]);
+    Route::get('/dashboard/users/', function () {
+        return view('dashboard.usersList',['users' => User::all()]);
     });
 
     Route::get('/dashboard/logout',[userController::class, 'logout']);
 
     Route::get('/dashboard/permissionsEdit',function () {
-        return view('dashboard.permissionsEdit',['permissions' => userController::getAllAuths(), 'permissionsFromUser' => User::find(Auth::user()->id)->Permissions]);
-    });
+        return view('dashboard.permissionsEdit',['user' => Auth::user(), 'permissions' => Permission::all()]);
+    })->name('editUser');
+
+    Route::post('/dashboard/permissionsEdit',[userController::class, 'edit']);
 });

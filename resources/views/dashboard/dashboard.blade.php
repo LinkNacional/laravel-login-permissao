@@ -7,7 +7,9 @@
         <title>dashboard</title>
     </head>
     <body>
-        @foreach ($user->getAuths() as $permission)
+            <li> {{ session('success') }}</li>
+
+        @foreach ($permissions as $permission)
         @if ($permission->name === 'auth1')
         <div>
             item 1

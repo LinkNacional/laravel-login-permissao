@@ -7,15 +7,31 @@
         <title>dashboard</title>
     </head>
     <body>
-        <form method="POST" action="/permissionsEdit">
-            @csrf
+        <h1>editar usuario</h1>
+
+        <form method="POST" action="permissionsEdit">
+            @csrf 
+            <label>nome:</label>
+            <br/>
+            <input type="text" value="@isset($user){{$user->name}}@endisset" name="name"/>
+            <br/>
+            <label>Email:</label>
+            <br/>
+            <input type="email" value="@isset($user){{$user->email}}@endisset" name="email"/>
+            <br/>
+            <label>Senha:</label>
+            <br/>
+            <input type="password" name="password">
+            <br/>
+
             @foreach ($permissions as $permission)
-            <div>
-                <input type="checkbox" value={{$permission->id}} name="permissions[{{$permission->id}}]">
-                <label for="{{ $permission->name }}">{{ $permission->name }}</label>
-            </div>
+                <div>
+                    <input type="checkbox" value={{$permission->id}} name="permissions[{{$permission->id}}]" @if($user->permissions->contains($permission->id)) checked @endif>
+                    <label for="{{ $permission->name }}">{{ $permission->name }}</label>
+                </div>
             @endforeach
             <input type="submit" value="salvar">
         </form>
+        <br/>
     </body>
 </html>
