@@ -17,29 +17,32 @@ use App\Models\Permission;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('/{any}', function() {
+    return view ( 'app' );
+})->where('any', '.*');
 
-Route::get('/login',[UserController::class, 'loginView'])->name('login');
+// Route::get('/login',[UserController::class, 'loginView'])->name('login');
 
-Route::post('/login',[UserController::class, 'authenticate'])->middleware('verify.login');
+// Route::post('/login',[UserController::class, 'authenticate'])->middleware('verify.login');
 
-Route::get('/register', [UserController::class, 'registerView']);
+// Route::get('/register', [UserController::class, 'registerView']);
 
-Route::post('/register',[userController::class, 'create'])->middleware('verify.register');
+// Route::post('/register',[userController::class, 'create'])->middleware('verify.register');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard.dashboard',['permissions' => Auth::user()->permissions]);
-    })->name('dashboard');
+// Route::middleware('auth')->group(function () {
+//     Route::get('/dashboard', function () {
+//         return view('dashboard.dashboard',['permissions' => Auth::user()->permissions]);
+//     })->name('dashboard');
 
-    Route::get('/dashboard/users/', function () {
-        return view('dashboard.usersList',['users' => User::all()]);
-    });
+//     Route::get('/dashboard/users/', function () {
+//         return view('dashboard.usersList',['users' => User::all()]);
+//     });
 
-    Route::get('/dashboard/logout',[userController::class, 'logout']);
+//     Route::get('/dashboard/logout',[userController::class, 'logout']);
 
-    Route::get('/dashboard/permissionsEdit',function () {
-        return view('dashboard.permissionsEdit',['user' => Auth::user(), 'permissions' => Permission::all()]);
-    })->name('editUser');
+//     Route::get('/dashboard/permissionsEdit',function () {
+//         return view('dashboard.permissionsEdit',['user' => Auth::user(), 'permissions' => Permission::all()]);
+//     })->name('editUser');
 
-    Route::post('/dashboard/permissionsEdit',[userController::class, 'edit']);
-});
+//     Route::post('/dashboard/permissionsEdit',[userController::class, 'edit']);
+// });
