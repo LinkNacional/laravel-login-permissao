@@ -8,7 +8,7 @@
   "scripts": {
     "build": "eslint --fix --ext .js,.vue ./ && quasar build",
     "lint": "eslint --fix --ext .js,.vue ./",
-    "serve": "eslint --fix --ext .js,.vue ./ && quasar serve",
+    "serve": "eslint --fix --ext .js,.vue ./ && quasar dev",
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
