@@ -6,8 +6,9 @@
   "author": "JoaoVictorLNacional <viana.joao@linknacional.com>",
   "private": true,
   "scripts": {
-    "build": "quasar build && eslint --ext .js,.vue ./",
-    "lint": "eslint --ext .js,.vue ./",
+    "build": "eslint --fix --ext .js,.vue ./ && quasar build",
+    "lint": "eslint --fix --ext .js,.vue ./",
+    "serve": "eslint --fix --ext .js,.vue ./ && quasar serve",
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
