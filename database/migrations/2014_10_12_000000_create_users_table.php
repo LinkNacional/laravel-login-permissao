@@ -20,6 +20,7 @@ class CreateUsersTable extends Migration {
             $table->rememberToken();
             $table->timestamps();
             $table->boolean('active')->default(true);
+            $table->foreignId('user_detail_id')->constrained('user_details')->nullable();
         });
     }
 

@@ -3,7 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use App\Models\Permission;
+use App\Models\permission;
+use App\Models\user_detail;
 use Illuminate\Database\Eloquent\Model;
 /**
  * @property integer $id
@@ -28,9 +29,13 @@ class User extends Authenticatable {
     /**
      * @var array
      */
-    protected $fillable = ['name', 'email', 'email_verified_at', 'password', 'remember_token', 'created_at', 'updated_at', 'auth1', 'auth2', 'auth3'];
+    protected $guarded = [];
 
-    public function permissions() {
+    public function permission() {
         return $this->belongsToMany(Permission::class);
+    }
+
+    public function detail() {
+        return $this->hasOne(user_detail::class);
     }
 }

@@ -4,8 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\userController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\Permission;
+use App\Models\user;
+use App\Models\permission;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +20,22 @@ use App\Models\Permission;
 Route::get('/{any}', function() {
     return view ( 'app' );
 })->where('any', '.*');
+
+Route::post('/users',function () {
+    $users = [];
+    // return User::all()[0]->details;
+    foreach (User::all() as $user) {
+        $users[] = [
+            'user' => $user,
+            'permission' => $user->permission,
+            'detail' => $user->detail,
+            'departament' => $user->detail->departament,
+            'unit' => $user->detail->unit->name,
+            'admin' => $user->detail->admin
+        ];
+    }
+    return $users;
+})->middleware('cors');
 
 // Route::get('/login',[UserController::class, 'loginView'])->name('login');
 
@@ -45,4 +61,5 @@ Route::get('/{any}', function() {
 //     })->name('editUser');
 
 //     Route::post('/dashboard/permissionsEdit',[userController::class, 'edit']);
+// });
 // });

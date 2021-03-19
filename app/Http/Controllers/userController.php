@@ -14,6 +14,7 @@ class userController extends Controller {
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
+        $user->details_id = 1;
         $user->save();
         $user->Permissions()->sync($request->permissions);
         $credentials = $request->only('email', 'password');
