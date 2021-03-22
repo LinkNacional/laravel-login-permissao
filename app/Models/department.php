@@ -8,5 +8,4 @@ class department extends Model {
      * @property integer $id
      * @property string $name
      */
-    protected $guarded = [];
 }

@@ -33,13 +33,11 @@ class userController extends Controller {
 
     public function authenticate(Request $request) {
         $credentials = $request->only('email', 'password');
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt($credentials,$request->remember)) {
             $request->session()->regenerate();
-            return redirect()->intended('dashboard');
+            return 'auth';
         }
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+        return 'The provided credentials do not match our records.';
     }
 
     public function edit(Request $request) {

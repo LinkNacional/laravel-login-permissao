@@ -16,7 +16,7 @@ class user_detail extends Model {
      * @property string $role
      * @property int $adm_user
      * @property int $user_id
-     * @property int $departament_id
+     * @property int $department_id
      * @property int $unit_id
      */
     protected $table = 'user_details';
@@ -24,7 +24,7 @@ class user_detail extends Model {
     protected $guarded = [];
 
     public function departament() {
-        return $this->belongsTo(department::class);
+        return $this->belongsTo(department::class,'department_id');
     }
 
     public function unit() {

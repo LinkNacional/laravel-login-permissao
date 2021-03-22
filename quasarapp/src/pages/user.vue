@@ -1,11 +1,9 @@
 <template>
-  <q-page class="flex flex-center">
-    <tablelist v-if="isLoaded" :info="this.return" title="Usuarios" />
-  </q-page>
+    <TableUsers v-if="isLoaded" :info="this.return" title="Usuarios" />
 </template>
 
 <script>
-import tablelist from 'src/components/tablelist.vue'
+import TableUsers from 'src/components/TableUsers.vue'
 import { axiosInstance } from 'boot/axios'
 
 export default {
@@ -16,10 +14,10 @@ export default {
       return: {}
     }
   },
-  components: { tablelist },
+  components: { TableUsers },
 
   methods: {
-    async login () {
+    async getUsers () {
       axiosInstance.post('/users')
         .then((response) => {
           this.return = response
@@ -32,7 +30,7 @@ export default {
     }
   },
   beforeMount () {
-    this.login()
+    this.getUsers()
   }
 
 }

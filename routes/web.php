@@ -17,9 +17,9 @@ use App\Models\permission;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/{any}', function() {
-    return view ( 'app' );
-})->where('any', '.*');
+// Route::get('/{any}', function() {
+//     return view ( 'app' );
+// })->where('any', '.*');
 
 Route::post('/users',function () {
     $users = [];
@@ -37,6 +37,15 @@ Route::post('/users',function () {
     return $users;
 })->middleware('cors');
 
+/**
+ * @property string $email
+ * @property string $password
+ * @property bool $remember
+ */
+Route::post('/login',[UserController::class, 'authenticate'])->middleware('cors');
+
+Route::post('/createuser',[UserController::class, 'create'])->middleware('cors');
+
 // Route::get('/login',[UserController::class, 'loginView'])->name('login');
 
 // Route::post('/login',[UserController::class, 'authenticate'])->middleware('verify.login');
@@ -46,9 +55,9 @@ Route::post('/users',function () {
 // Route::post('/register',[userController::class, 'create'])->middleware('verify.register');
 
 // Route::middleware('auth')->group(function () {
-//     Route::get('/dashboard', function () {
-//         return view('dashboard.dashboard',['permissions' => Auth::user()->permissions]);
-//     })->name('dashboard');
+    Route::get('/dashboard', function () {
+        return view('dashboard.dashboard',['permissions' => Auth::user()->permissions]);
+    })->name('dashboard');
 
 //     Route::get('/dashboard/users/', function () {
 //         return view('dashboard.usersList',['users' => User::all()]);

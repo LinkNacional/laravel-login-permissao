@@ -5,8 +5,12 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('pages/Index.vue') },
-      { path: 'users', component: () => import('pages/tableuser.vue') }
+      { path: 'users', component: () => import('src/pages/user.vue') }
     ]
+  },
+  {
+    path: '/login',
+    component: () => import('src/pages/login.vue')
   },
 
   // Always leave this as last one,
