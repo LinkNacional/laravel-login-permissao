@@ -7,7 +7,6 @@
 </template>
 
 <script>
-// import { axiosInstance } from 'boot/axios'
 import CardLogin from 'src/components/CardLogin.vue'
 
 export default {
@@ -18,24 +17,6 @@ export default {
       return: {}
     }
   },
-  components: { CardLogin },
-
-  methods: {
-    // async getUsers () {
-    //   axiosInstance.post('/users')
-    //     .then((response) => {
-    //       this.return = response
-    //       this.isLoaded = true
-    //     })
-    //     .catch((error) => {
-    //       console.log(error)
-    //       this.isLoaded = false
-    //     })
-    // }
-  },
-  beforeMount () {
-    // this.getUsers()
-  }
-
+  components: { CardLogin }
 }
 </script>

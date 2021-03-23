@@ -2,7 +2,7 @@
   "name": "quasarapp",
   "version": "0.0.1",
   "description": "A Quasar Framework app",
-  "productName": "Quasar App",
+  "productName": "sistema de chamados",
   "author": "JoaoVictorLNacional <viana.joao@linknacional.com>",
   "private": true,
   "scripts": {

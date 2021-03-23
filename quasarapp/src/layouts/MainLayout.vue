@@ -12,10 +12,10 @@
         />
 
         <q-toolbar-title>
-          Quasar App
+          sistema de chamados
         </q-toolbar-title>
 
-        <div> v1.0</div>
+        <div><a href='#' @click="logout">sair</a></div>
       </q-toolbar>
     </q-header>
 
@@ -32,6 +32,7 @@
         >
           menu
         </q-item-label>
+
         <EssentialLink
           v-for="link in essentialLinks"
           :key="link.title"
@@ -48,14 +49,22 @@
 
 <script>
 import EssentialLink from 'components/EssentialLink.vue'
+import { axiosInstance } from 'boot/axios'
 
 const linksData = [
+  {
+    title: 'Dashboard',
+    caption: '',
+    icon: 'dashboard',
+    link: 'dashboard'
+  },
   {
     title: 'usuários',
     caption: 'Menu de usuários',
     icon: 'supervisor_account',
     link: 'users'
   }
+
 ]
 
 export default {
@@ -65,6 +74,14 @@ export default {
     return {
       leftDrawerOpen: false,
       essentialLinks: linksData
+    }
+  },
+  methods: {
+    logout () {
+      axiosInstance.post('/logout')
+        .catch((error) => {
+          console.log(error)
+        })
     }
   }
 }
