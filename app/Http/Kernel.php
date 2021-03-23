@@ -14,6 +14,7 @@ class Kernel extends HttpKernel {
      */
     protected $middleware = [
         // \App\Http\Middleware\TrustHosts::class,
+        \App\Http\Middleware\Cors::class,
         \App\Http\Middleware\TrustProxies::class,
         \Fruitcake\Cors\HandleCors::class,
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
@@ -54,7 +55,6 @@ class Kernel extends HttpKernel {
     protected $routeMiddleware = [
         'verify.login' => \App\Http\Middleware\verifyLogin::class,
         'verify.register' => \App\Http\Middleware\verifyRegister::class,
-        'cors' => \App\Http\Middleware\Cors::class, 
 
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,

@@ -35,9 +35,9 @@ class userController extends Controller {
         $credentials = $request->only('email', 'password');
         if (Auth::attempt($credentials,$request->remember)) {
             $request->session()->regenerate();
-            return 'auth';
+            return response('logado',200);
         }
-        return 'The provided credentials do not match our records.';
+        return response('email ou senha invalida', 401);
     }
 
     public function edit(Request $request) {
