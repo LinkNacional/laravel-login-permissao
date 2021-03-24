@@ -2,11 +2,11 @@
     "private": true,
     "scripts": {
         "dev": "cd quasarapp && quasar build && cd ../ && npm run development && npm run serve",
+        "prod": "cd quasarapp && quasar build && cd ../ && npm run production && npm run serve",
         "development": "mix",
         "watch": "mix watch",
         "watch-poll": "mix watch -- --watch-options-poll=1000",
         "hot": "mix watch --hot",
-        "prod": "npm run production",
         "serve": "php artisan serve",
         "production": "mix --production"
     },

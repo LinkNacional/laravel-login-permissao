@@ -18,8 +18,8 @@ class UserPolicy {
     }
 
     public function list(User $user) {
-        foreach ($user->getAuths() as $permission) {
-            if ($permission->name === 'auth1') {
+        foreach ($user->permission as $permission) {
+            if ($permission->name === 'users') {
                 return true;
             }
         }

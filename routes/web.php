@@ -5,7 +5,6 @@ use App\Http\Controllers\userController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\permission;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +16,13 @@ use App\Models\permission;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('/',function() {
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    } else {
+        return redirect()->route('login');
+    }
+});
 
 Route::get('/login',function() {
     if (!Auth::check()) {
@@ -26,24 +32,30 @@ Route::get('/login',function() {
     }
 })->name('login');
 
-Route::middleware('auth')->group(function () {
-    Route::post('/users',function () {
-        $users = [];
-        foreach (User::all() as $user) {
-            $users[] = [
-                'user' => $user,
-                'permission' => $user->permission,
-                'detail' => $user->detail,
-                'departament' => $user->detail->departament,
-                'unit' => $user->detail->unit->name,
-                'admin' => $user->detail->admin
-            ];
-        }
-        return $users;
-    });
+Route::post('/login',[UserController::class, 'authenticate']);
 
-    Route::get('/users',function() {
-        return view ( 'app' );
+Route::post('/createuser',[UserController::class, 'create']);
+
+Route::middleware('auth')->group(function () {
+    Route::middleware('auth.user')->group(function () {
+        Route::post('/users',function () {
+            $users = [];
+            foreach (User::all() as $user) {
+                $users[] = [
+                    'user' => $user,
+                    'permission' => $user->permission,
+                    'detail' => $user->detail,
+                    'departament' => $user->detail->departament,
+                    'unit' => $user->detail->unit->name,
+                    'admin' => $user->detail->admin
+                ];
+            }
+            return $users;
+        });
+
+        Route::get('/users',function() {
+            return view ( 'app' );
+        });
     });
 
     Route::post('/logout',function(Request $request) {
@@ -66,12 +78,3 @@ Route::middleware('auth')->group(function () {
         return $permissions;
     });
 });
-
-/**
- * @property string $email
- * @property string $password
- * @property bool $remember
- */
-Route::post('/login',[UserController::class, 'authenticate']);
-
-Route::post('/createuser',[UserController::class, 'create']);

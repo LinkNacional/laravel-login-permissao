@@ -29,28 +29,20 @@
           >
             {{ col.label }}
           </q-th>
-          <q-th class="text-center sortable" >
-            Permissões
-          </q-th>
         </q-tr>
       </template>
 
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td
-            style="width:20%"
-            v-for="(col) in props.cols"
+            v-for="col in props.cols"
             :key="col.name"
             :props="props"
             v-show="col.name != 'id'"
           >
-            <span>{{ col.value }}</span>
-          <i v-if="col.name == 'Ativo'" class="fas fa-circle" :style="{color: props.row.ativo == 1 ? 'green':'gray'}"></i>
-          </q-td>
-          <q-td class="text-center">
-            <q-btn @click="props.expand = !props.expand" style="margin-left: 25px;" size="sm" color="accent" round dense >
-              <i class="fas fa-pen"></i>
-            </q-btn>
+          <i style="margin-left: 10%;" v-if="col.name == 'Status'" class="fas fa-circle" :style="{color: col.value == 1 ? 'green':'gray'}"></i>
+          <q-btn v-else-if="col.name == 'Permissões'" @click="props.expand = !props.expand" style="margin-left: 5%;" size="sm" color="accent" round dense ><i class="fas fa-pen"></i></q-btn>
+          <span v-else >{{ col.value }}</span>
           </q-td>
         </q-tr>
 
@@ -59,63 +51,75 @@
             <div class="text-left">This is expand slot for row above: {{ props.row.name }}.</div>
           </q-td>
         </q-tr>
-
       </template>
-
     </q-table>
   </div>
 </template>
 
 <script>
+import { axiosInstance } from 'boot/axios'
 
 export default {
   name: 'tablelist',
-  props: ['title', 'info'],
+  props: ['title'],
   data () {
     return {
       filter: '',
+      isLoaded: false,
       pagination: {
         rowsPerPage: 7
       },
       columns: [
         { name: 'id', align: 'left', label: '', field: '' },
-
-        { name: 'name', required: true, label: 'Nome', align: 'left', field: row => row.name, format: val => `${val}`, sortable: true },
+        { name: 'Permissões', align: 'left', label: 'Permissões', field: 'Permissões' },
+        { name: 'Status', align: 'left', label: 'status', field: 'status', sortable: true, required: true },
+        { name: 'name', required: true, label: 'Nome', align: 'center', field: row => row.name, format: val => `${val}`, sortable: true },
         { name: 'E-mail', align: 'center', label: 'E-mail', field: 'email', sortable: true },
-        { name: 'Departamento', align: 'center', label: 'Departamento', field: 'departamento', sortable: true, required: true },
-        { name: 'Ativo', align: 'center', label: 'Status', field: 'status', sortable: true, required: true }
+        { name: 'Departamento', align: 'center', label: 'Departamento', field: 'departamento', sortable: true, required: true }
       ],
       data: [
-        { id: '2', name: 'joao Victor Amorim VIana da silva', email: '$gmail.com', departamento: 'dep1', ativo: '1' },
-        { id: '3', name: 'joao', email: 'viana.joao@linknacional.com.br', departamento: 'Desenvolvimento de sistemas PHP', ativo: '1' },
-        { id: '4', name: 'joao', email: '$gmail.com', departamento: 'dep1', ativo: '1' },
-        { id: '4', name: 'joao', email: '$gmail.com', departamento: 'dep1', ativo: '1' },
-        { id: '4', name: 'joao', email: '$gmail.com', departamento: 'dep1', ativo: '1' },
-        { id: '4', name: 'joao', email: '$gmail.com', departamento: 'dep1', ativo: '1' },
-        { id: '4', name: 'joao', email: '$gmail.com', departamento: 'dep1', ativo: '1' },
-        { id: '4', name: 'joao', email: '$gmail.com', departamento: 'dep1', ativo: '1' },
-        { id: '5', name: 'joao', email: '$gmail.com', departamento: 'dep1', ativo: '1' },
-        { id: '6', name: 'joao', email: '$gmail.com', departamento: 'dep1', ativo: '1' }
+        { id: '2', name: 'joao Victor Amorim VIana da silva', email: 'viana.joao@gmail.com', departamento: 'dep1', status: 1 },
+        { id: '3', name: 'joao Victor Amorim VIana da silva', email: 'viana.joao@linknacional.com.br', departamento: 'Desenvolvimento de sistemas PHP', status: 1 },
+        { id: '4', name: 'joao', email: '$gmail.com', departamento: 'dep1', status: 1 },
+        { id: '4', name: 'joao', email: '$gmail.com', departamento: 'dep1', status: 1 },
+        { id: '4', name: 'joao', email: '$gmail.com', departamento: 'dep1', status: 1 },
+        { id: '4', name: 'joao', email: '$gmail.com', departamento: 'dep1', status: 1 },
+        { id: '4', name: 'joao', email: '$gmail.com', departamento: 'dep1', status: 1 },
+        { id: '4', name: 'joao', email: '$gmail.com', departamento: 'dep1', status: 1 },
+        { id: '5', name: 'joao', email: '$gmail.com', departamento: 'dep1', status: 1 },
+        { id: '5', name: 'joao', email: '$gmail.com', departamento: 'dep1', status: 0 },
+        { id: '6', name: 'joao', email: '$gmail.com', departamento: 'dep1', status: 1 }
       ]
     }
   },
   methods: {
-    formatTable () {
-      console.log(this.info.data)
-      this.info.data.forEach((user, index) => {
+    formatTable (infos) {
+      infos.data.forEach((user, index) => {
         this.data.push({
           id: user.user.id,
           name: user.user.name,
           email: user.user.email,
           departamento: user.departament == null ? '' : user.departament.name,
-          ativo: user.user.active
+          Status: user.user.active
         })
       })
+      this.$q.loadingBar.stop()
+    },
+    async getUsers () {
+      this.$q.loadingBar.start()
+      axiosInstance.post('/users')
+        .then((response) => {
+          this.formatTable(response)
+          this.$q.loadingBar.stop()
+        })
+        .catch((error) => {
+          console.log(error)
+          this.$q.loadingBar.stop()
+        })
     }
   },
-  computed: { },
   beforeMount () {
-    this.formatTable()
+    this.getUsers()
   }
 }
 </script>
