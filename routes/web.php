@@ -5,6 +5,7 @@ use App\Http\Controllers\userController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Permissions;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +57,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/users',function() {
             return view ( 'app' );
         });
+
+        Route::get('/users/permissions/:id',function() {
+            return view ( 'app' );
+        });
     });
 
     Route::post('/logout',function(Request $request) {
@@ -78,3 +83,32 @@ Route::middleware('auth')->group(function () {
         return $permissions;
     });
 });
+Route::post('/users/auths',function() {
+    $ret = [];
+    foreach (Permissions::all() as $Permission) {
+        foreach ($Permission->groups as $group) {
+            if (isset($ret[$group->name])) {
+                array_push($ret[$group->name],$Permission->name);
+            } else {
+                $ret[$group->name] = [$Permission->name];
+            }
+        }
+        if (isset($ret['all auths'])) {
+            $ret['all auths'] = [...$ret['all auths'], $Permission->name];
+        } else {
+            $ret['all auths'] = [$Permission->name];
+        }
+    }
+    return $ret;
+});
+
+ Route::post('/users/auths/all',function() {
+     //  return User::findOrFail(Auth::user()->id);
+     $permissions = [];
+     foreach (Auth::user()->permission as $permission) {
+         $permissions[$permission->id] = [
+             $permission->name
+         ];
+     }
+     return $permissions;
+ });

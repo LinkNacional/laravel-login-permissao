@@ -7,16 +7,16 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 /**
  * @property int $id
  * @property int $user_id
- * @property int $permission_id
+ * @property int $permissions_id
  */
 class Users_permission extends Pivot {
     /**
      * @var array
      */
-    protected $fillable = ['user_id', 'permission_id'];
+    protected $fillable = ['user_id', 'permissions_id'];
 
     public function permissions() {
-        return $this->belongsTo('App\Models\Permission');
+        return $this->belongsTo('App\Models\Permissions');
     }
 
     public function user() {

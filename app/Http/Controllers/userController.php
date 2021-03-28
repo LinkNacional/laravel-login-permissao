@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use App\Models\Permission;
+use App\Models\Permissions;
 use Illuminate\Support\Facades\Hash;
 
 class userController extends Controller {
@@ -63,6 +63,6 @@ class userController extends Controller {
     }
 
     public function registerView() {
-        return view('login.register',['permissions' => Permission::all()]);
+        return view('login.register',['permissions' => Permissions::all()]);
     }
 }

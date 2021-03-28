@@ -27,7 +27,7 @@ export default {
   components: { CardInfoDashboard },
   methods: {
     async auths () {
-      axiosInstance.post('/auths')
+      axiosInstance.post('users/auths/all')
         .then((response) => {
           this.auths_list = response.data
           Object.entries(this.auths_list).forEach(auth => {

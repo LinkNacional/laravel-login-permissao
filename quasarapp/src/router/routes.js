@@ -6,9 +6,15 @@ const routes = [
     children: [
       { path: '', component: () => import('pages/Index.vue') },
       { path: 'dashboard', component: () => import('src/pages/dashboard.vue') },
-      { path: 'users', component: () => import('src/pages/user.vue') }
+      { path: 'users', component: () => import('src/pages/users/user.vue') },
+      {
+        path: '/users/permission/:id',
+        component: () => import('src/pages/users/permissions.vue'),
+        props: true
+      }
     ]
   },
+
   {
     path: '/login',
     component: () => import('src/pages/login.vue')

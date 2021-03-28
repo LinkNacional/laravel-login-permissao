@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use App\Models\permission;
+use App\Models\Permissions;
 use App\Models\user_detail;
 use Illuminate\Database\Eloquent\Model;
 /**
@@ -32,7 +32,7 @@ class User extends Authenticatable {
     protected $guarded = [];
 
     public function permission() {
-        return $this->belongsToMany(Permission::class);
+        return $this->belongsToMany(Permissions::class);
     }
 
     public function detail() {
