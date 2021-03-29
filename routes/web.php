@@ -17,6 +17,7 @@ use App\Models\Permissions;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
 Route::get('/',function() {
     if (Auth::check()) {
         return redirect()->route('dashboard');
@@ -58,8 +59,46 @@ Route::middleware('auth')->group(function () {
             return view ( 'app' );
         });
 
-        Route::get('/users/permissions/:id',function() {
+        Route::get('/users/permission/{id}',function() {
             return view ( 'app' );
+        });
+
+        Route::post('/users/permissions/{id}',function($id,Request $request) {
+            $user = User::find($id);
+            return $user->permission;
+        });
+
+        Route::put('/users/permissions/',function(Request $request) {
+            $id = $request->input('id');
+            $permissions = $request->input('permissions');
+            $groups = $request->input('groups');
+            $admin = $request->input('admin');
+            $user = User::find($id);
+            $user->permission()->sync([]);
+            foreach ($permissions as $key => $value) {
+                $user->permission()->save(Permissions::where('name', $value)->first());
+            }
+            $permissionsAll = Permissions::all();
+            $permissionsChecked = $permissions;
+        });
+
+        Route::post('/users/auths',function() {
+            $ret = [];
+            foreach (Permissions::all() as $Permission) {
+                foreach ($Permission->groups as $group) {
+                    if (isset($ret[$group->name])) {
+                        array_push($ret[$group->name],$Permission->name);
+                    } else {
+                        $ret[$group->name] = [$Permission->name];
+                    }
+                }
+                if (isset($ret['all auths'])) {
+                    $ret['all auths'] = [...$ret['all auths'], $Permission->name];
+                } else {
+                    $ret['all auths'] = [$Permission->name];
+                }
+            }
+            return $ret;
         });
     });
 
@@ -82,33 +121,14 @@ Route::middleware('auth')->group(function () {
         }
         return $permissions;
     });
-});
-Route::post('/users/auths',function() {
-    $ret = [];
-    foreach (Permissions::all() as $Permission) {
-        foreach ($Permission->groups as $group) {
-            if (isset($ret[$group->name])) {
-                array_push($ret[$group->name],$Permission->name);
-            } else {
-                $ret[$group->name] = [$Permission->name];
-            }
-        }
-        if (isset($ret['all auths'])) {
-            $ret['all auths'] = [...$ret['all auths'], $Permission->name];
-        } else {
-            $ret['all auths'] = [$Permission->name];
-        }
-    }
-    return $ret;
-});
 
- Route::post('/users/auths/all',function() {
-     //  return User::findOrFail(Auth::user()->id);
-     $permissions = [];
-     foreach (Auth::user()->permission as $permission) {
-         $permissions[$permission->id] = [
-             $permission->name
-         ];
-     }
-     return $permissions;
- });
+    Route::post('/users/auths/all',function() {
+        $permissions = [];
+        foreach (Auth::user()->permission as $permission) {
+            $permissions[$permission->id] = [
+                $permission->name
+            ];
+        }
+        return $permissions;
+    });
+});

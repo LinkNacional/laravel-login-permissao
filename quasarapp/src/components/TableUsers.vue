@@ -40,8 +40,9 @@
             :props="props"
             v-show="col.name != 'id'"
           >
+           <!-- @click="props.expand = !props.expand"  -->
           <i style="margin-left: 10%;" v-if="col.name == 'Status'" class="fas fa-circle" :style="{color: col.value == 1 ? 'green':'gray'}"></i>
-          <q-btn v-else-if="col.name == 'Permissões'" @click="props.expand = !props.expand" style="margin-left: 5%;" size="sm" color="accent" round dense ><i class="fas fa-pen"></i></q-btn>
+          <q-btn v-else-if="col.name == 'Permissões'"  :to="{ path: '/users/permission/'+props.key }" style="margin-left: 5%;" size="sm" color="accent" round dense ><i class="fas fa-pen"></i></q-btn>
           <span v-else >{{ col.value }}</span>
           </q-td>
         </q-tr>
@@ -78,6 +79,7 @@ export default {
         { name: 'Departamento', align: 'center', label: 'Departamento', field: 'departamento', sortable: true, required: true }
       ],
       data: [
+        { id: '1', name: 'joao Victor Amorim VIana da silva', email: 'viana.joao@gmail.com', departamento: 'dep1', status: 1 },
         { id: '2', name: 'joao Victor Amorim VIana da silva', email: 'viana.joao@gmail.com', departamento: 'dep1', status: 1 },
         { id: '3', name: 'joao Victor Amorim VIana da silva', email: 'viana.joao@linknacional.com.br', departamento: 'Desenvolvimento de sistemas PHP', status: 1 },
         { id: '4', name: 'joao', email: '$gmail.com', departamento: 'dep1', status: 1 },
