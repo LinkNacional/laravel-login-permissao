@@ -4,16 +4,17 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUnitsTable extends Migration {
+class CreateUserPermissionTable extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
     public function up() {
-        Schema::create('units', function (Blueprint $table) {
+        Schema::create('permission_user', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('permission_id')->constrained();
         });
     }
 
@@ -23,6 +24,6 @@ class CreateUnitsTable extends Migration {
      * @return void
      */
     public function down() {
-        Schema::dropIfExists('units');
+        Schema::dropIfExists('permission_user');
     }
 }

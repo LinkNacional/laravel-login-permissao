@@ -6,10 +6,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Groups extends Model {
+class Group extends Model {
+    use HasFactory;
+
+    public $timestamps = false;
+
     protected $fillable = ['name'];
 
-    public function permissions() {
-        return $this->belongsToMany(Permissions::class);
+    public function permission() {
+        return $this->belongsToMany(Permission::class);
     }
 }

@@ -3,15 +3,31 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Permission;
 
 class permissionController extends Controller {
     /**
-     * Display a listing of the resource.
+     * Return listing of the permissions and groups.
      *
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        //
+        $return = [];
+        foreach (Permission::all() as $Permission) {
+            foreach ($Permission->groups as $group) {
+                if (isset($return[$group->name])) {
+                    array_push($return[$group->name],$Permission->name);
+                } else {
+                    $return[$group->name] = [$Permission->name];
+                }
+            }
+            if (isset($return['all auths'])) {
+                $return['all auths'] = [...$return['all auths'], $Permission->name];
+            } else {
+                $return['all auths'] = [$Permission->name];
+            }
+        }
+        return $return;
     }
 
     /**

@@ -4,17 +4,19 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUsersPermissions extends Migration {
+class AccessLogs extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
     public function up() {
-        Schema::create('permissions_user', function (Blueprint $table) {
+        Schema::create('access_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('permissions_id')->constrained('permissions');
+            $table->foreignId('user_id')->nullable()->constrained();
+            $table->timestamp('hour_access')->useCurrent();
+            $table->string('ip', 45);
+            $table->string('status', 7);
         });
     }
 
@@ -24,6 +26,6 @@ class CreateUsersPermissions extends Migration {
      * @return void
      */
     public function down() {
-        Schema::dropIfExists('permissions_user');
+        Schema::dropIfExists('access_logs');
     }
 }

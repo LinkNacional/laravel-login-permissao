@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use App\Models\Permissions;
-use App\Models\user_detail;
+use App\Models\Permission;
+use App\Models\Detail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 /**
  * @property integer $id
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $updated_at
  */
 class User extends Authenticatable {
+    use HasFactory;
     /**
      * The "type" of the auto-incrementing ID.
      * 
@@ -32,10 +34,10 @@ class User extends Authenticatable {
     protected $guarded = [];
 
     public function permission() {
-        return $this->belongsToMany(Permissions::class);
+        return $this->belongsToMany(Permission::class);
     }
 
     public function detail() {
-        return $this->hasOne(user_detail::class);
+        return $this->belongsTo(Detail::class);
     }
 }

@@ -5,11 +5,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\groups;
+use App\Models\Group;
 use App\Models\User;
 
-class Permissions extends Model {
+class Permission extends Model {
     use HasFactory;
+    public $timestamps = false;
 
     protected $fillable = ['name'];
 
@@ -18,6 +19,6 @@ class Permissions extends Model {
     }
 
     public function groups() {
-        return $this->belongsToMany(groups::class,'permission_group');
+        return $this->belongsToMany(Group::class);
     }
 }

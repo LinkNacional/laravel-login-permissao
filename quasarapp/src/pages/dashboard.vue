@@ -1,13 +1,6 @@
 <template>
     <div class="q-pa-md row items-start q-gutter-md">
-      <CardInfoDashboard style="color:green" v-if="auths_list[1]"/>
-      <CardInfoDashboard style="color:black" v-if="auths_list[2]"/>
-      <CardInfoDashboard style="color:blue" v-if="auths_list[3]"/>
-      <CardInfoDashboard style="color:red" v-if="auths_list[4]"/>
       <CardInfoDashboard style="color:purple" v-if=" auths_names.find(element => element == 'users') "/>
-      <CardInfoDashboard style="color:yelow" v-if=" auths_names.find(element => element == 'auth2') "/>
-      <CardInfoDashboard style="color:green" v-if=" auths_names.find(element => element == 'auth3') "/>
-      <CardInfoDashboard style="color:black" v-if=" auths_names.find(element => element == 'auth4') "/>
     </div>
 </template>
 

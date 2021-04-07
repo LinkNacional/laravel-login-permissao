@@ -4,22 +4,24 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUserDetailsTable extends Migration {
+class CreateDetailsTable extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
     public function up() {
-        Schema::create('user_details', function (Blueprint $table) {
+        Schema::create('details', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('adm_user')->constrained('users');
+            $table->foreignId('department_id')->constrained();
+            $table->foreignId('user_id')->constrained();
+            $table->string('unit');
             $table->string('lastname');
             $table->string('phone');
             $table->string('role');
-            $table->foreignId('adm_user')->constrained('users');
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('department_id')->constrained('departments');
-            $table->foreignId('unit_id')->constrained('units');
+            $table->string('ramal');
+            $table->bigInteger('technical_time');
         });
     }
 
@@ -29,6 +31,6 @@ class CreateUserDetailsTable extends Migration {
      * @return void
      */
     public function down() {
-        Schema::dropIfExists('user_details');
+        Schema::dropIfExists('details');
     }
 }
