@@ -56,13 +56,13 @@ const linksData = [
     title: 'Dashboard',
     caption: '',
     icon: 'dashboard',
-    link: 'dashboard'
+    link: '/dashboard'
   },
   {
     title: 'usuários',
     caption: 'Menu de usuários',
     icon: 'supervisor_account',
-    link: 'users'
+    link: '/users'
   }
 
 ]

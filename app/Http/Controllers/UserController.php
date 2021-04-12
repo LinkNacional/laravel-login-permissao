@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Detail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Permission;
+use Doctrine\DBAL\Schema\Index;
 
-    /**
+/**
      * creating a new resource.
      * @param  Request  $request
      * @return \Illuminate\Http\Response
@@ -78,8 +80,12 @@ class UserController extends Controller {
        * @return \Illuminate\Http\Response
        */
     public function permissions($id) {
-        $permission = User::find($id)->permission;
-        return $permission;
+        $permission = User::find($id);
+        if (count($permission->permission) != 0) {
+            return $permission->permission;
+        } else {
+            return response('user not found',403);
+        }
     }
 
     /**

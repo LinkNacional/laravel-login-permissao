@@ -85,9 +85,9 @@ module.exports = function (/* ctx */) {
       lang: 'pt-br', // Quasar language pack
       config: {
         loadingBar: {
-          color: 'green',
-          size: '10px',
-          position: 'bottom'
+          color: 'red',
+          size: '12px',
+          position: 'top'
         }
       },
 
@@ -106,7 +106,9 @@ module.exports = function (/* ctx */) {
       // Quasar plugins
       plugins: [
         'Notify',
-        'LoadingBar'
+        // 'LoadingBar',
+        'Loading'
+
       ]
     },
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div v-show="!loading" class="q-pa-md">
     <q-form @submit="onSubmit" class="q-gutter-md">
 
       <div class="row col-12">
@@ -38,40 +38,45 @@ export default {
   props: ['id'],
   data () {
     return {
-      // cores da view
-      teal: false,
-      orange: false,
-      red: false,
-      cyan: false,
       // dados de teste
-      data_teste: {
-      },
-
+      data_teste: {},
       data: [],
       admin: false,
       contador: 0,
       colors: ['teal', 'orange', 'red', 'cyan', 'blue'],
       groups: [],
       // permissions do usuario
-      permissions: []
+      permissions: [],
+      loading: true
     }
   },
   methods: {
 
     getPermissionsFromUser () {
-      axiosInstance.post('/users/permissions/' + this.id).then((response) => {
-        response.data.forEach(permission => {
-          this.permissions.push(permission.name)
+      this.$q.loading.show()
+      axiosInstance.post('/users/permissions/' + this.id)
+        .then((response) => {
+          response.data.forEach(permission => {
+            this.permissions.push(permission.name)
+            this.loadingStop()
+          }).catch((error) => {
+            console.log(error)
+            this.loadingStop()
+          })
         })
-      })
+    },
+    loadingStop () {
+      this.$q.loading.hide()
+      this.loading = false
     },
     onSubmit () {
-      axiosInstance.put('/users/permissions/', {
+      axiosInstance.post('/users/permissions/save', {
         permissions: this.permissions,
         groups: this.groups,
         admin: this.admin,
         id: this.id
       }).then((response) => {
+        console.log(response)
       })
     },
     checkGroup (index) {
@@ -104,9 +109,14 @@ export default {
       })
     },
     getAllPermissions () {
-      axiosInstance.post('/users/auths').then((response) => {
+      this.$q.loading.show()
+      axiosInstance.post('/permissions').then((response) => {
         this.data_teste = response.data
         delete this.data_teste['all auths']
+        this.loadingStop()
+      }).catch((error) => {
+        console.log(error)
+        this.loadingStop()
       })
     },
     checkGroupReverse () {

@@ -20,7 +20,7 @@ export default {
   components: { CardInfoDashboard },
   methods: {
     async auths () {
-      axiosInstance.post('users/auths/all')
+      axiosInstance.post('/users/permissions')
         .then((response) => {
           this.auths_list = response.data
           Object.entries(this.auths_list).forEach(auth => {
@@ -29,7 +29,7 @@ export default {
           console.log(this.auths_names)
         })
         .catch((error) => {
-          console.log('error /auths', error)
+          console.log('error /users/permissions', error)
         })
     }
   },

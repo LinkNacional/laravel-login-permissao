@@ -6,9 +6,12 @@ use App\Models\User;
 use App\Models\Detail;
 use App\Models\Permission;
 use App\Models\Group;
+use App\Models\Access_log;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\permissionController;
+use App\Http\Controllers\PermissionController;
+use Illuminate\Http\Request;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -38,32 +41,46 @@ Route::get('/login',function() {
 
 Route::post('/login',[LoginController::class, 'authenticate']);
 
+Route::post('/logout',[LoginController::class, 'logout']);
+
 Route::middleware('auth')->group(function () {
     //permission user
     Route::middleware('auth.user')->group(function () {
-        Route::post('/users',[UserController::class, 'index']);
-
         Route::get('/users',function() {
             return view ( 'app' );
         });
 
-        Route::get('/users/permission/{id}',function() {
-            return view ( 'app' );
+        Route::get('/users/permission/{id}',function($id) {
+            $permission = User::find($id);
+            if ($permission) {
+                return view ( 'app' );
+            } else {
+                return response()->view('error.404',[], 404);
+            }
         });
+
+        Route::get('/dashboard',function() {
+            return view ( 'app' );
+        })->name('dashboard');
+
+        Route::post('/users',[UserController::class, 'index']);
 
         Route::post('/users/permissions/{id}',[UserController::class, 'permissions']);
 
         //modificar url no front
         Route::post('/users/permissions/save',[UserController::class, 'updatePermissions']);
 
-        Route::post('/users/auths',[permissionController::class, 'index']);
+        Route::post('/users/permissions',function() {
+            foreach (Auth::user()->permission as $permission) {
+                $permissions[$permission->id] = [
+                    $permission->name
+                ];
+            }
+            return $permissions;
+        });
+
+        Route::post('/permissions',[PermissionController::class, 'index']);
     });
-
-    Route::get('/dashboard',function() {
-        return view ( 'app' );
-    })->name('dashboard');
-
-    Route::post('/logout',[LoginController::class, 'logout']);
 
     //subistituir por [permissionController::class, 'index']
     Route::post('/auths',function() {
@@ -75,17 +92,45 @@ Route::middleware('auth')->group(function () {
         return $permissions;
     });
 
-    Route::post('/users/auths/all',function() {
-        $permissions = [];
-        foreach (Auth::user()->permission as $permission) {
-            $permissions[$permission->id] = [
-                $permission->name
-            ];
-        }
-        return $permissions;
-    });
     //subistituir por [permissionController::class, 'index']
 });
+//mudar local de permissão
+ Route::get('/users/edit/{id}',function($id) {
+     $permission = User::find($id);
+     if ($permission) {
+         return view ( 'app' );
+     } else {
+         return response()->view('error.404',[], 404);
+     }
+ });
+
+ Route::post('/users/edit/{id}',function($id) {
+     $user = User::find($id);
+     $log = Access_log::where('user_id',8)->get();
+     $return = [];
+     $return[] = (object) [
+         'user' => $user, 
+         'details' => $user->detail
+     ];
+
+     foreach ($log as $key => $value) {
+         $return[] = [
+             'data' => $value->hour_access,
+             'ip' => $value->ip,
+             'status' => $value->status,
+         ];
+     };
+     return $return;
+ });
+
+ Route::post('/users/edit/{id}/save',function($id,Request $request) {
+     //return [$id, $request->input('technical_time')];
+     $user = User::find($id);
+     $technical_time = $request->input('technical_time');
+     $user->detail->technical_time = $technical_time;
+     $user->detail->save();
+     return $user;
+ });
 
 //remover na produção
 
@@ -108,3 +153,6 @@ Route::middleware('auth')->group(function () {
  });
 
  Route::post('/createuser',[UserController::class, 'create']);
+
+ //remover na produção
+

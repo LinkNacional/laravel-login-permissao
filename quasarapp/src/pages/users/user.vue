@@ -1,5 +1,5 @@
 <template>
-    <TableUsers title="Usuarios" />
+  <TableUsers title="Usuarios" />
 </template>
 
 <script>

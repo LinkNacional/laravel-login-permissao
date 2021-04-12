@@ -25,7 +25,7 @@ class Detail extends Model {
     protected $guarded = [];
 
     public function departament() {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Department::class,'department_id');
     }
 
     public function admin() {
