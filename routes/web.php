@@ -106,13 +106,26 @@ Route::middleware('auth')->group(function () {
 
  Route::post('/users/edit/{id}',function($id) {
      $user = User::find($id);
-     $log = Access_log::where('user_id',8)->get();
+     $log = Access_log::where('user_id',$id)->orderByDesc('hour_access')->get();
      $return = [];
      $return[] = (object) [
          'user' => $user, 
          'details' => $user->detail
      ];
 
+     foreach ($log as $key => $value) {
+         $return[] = [
+             'data' => $value->hour_access,
+             'ip' => $value->ip,
+             'status' => $value->status,
+         ];
+     };
+     return $return;
+ });
+
+ Route::post('/users/edit/{id}/refresh',function($id) {
+     $log = Access_log::where('user_id',$id)->orderByDesc('hour_access')->get();
+     $return = [];
      foreach ($log as $key => $value) {
          $return[] = [
              'data' => $value->hour_access,

@@ -5,7 +5,7 @@
         </div>
 
         <div class="col-6">
-        <LogUser :promisse="promisse"/>
+        <LogUser :promisse="promisse" :id="id"/>
         </div>
 
     </div>

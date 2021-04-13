@@ -12,10 +12,12 @@
 </template>
 
 <script>
+import { axiosInstance } from 'boot/axios'
 
 export default {
+
   name: 'LogUser',
-  props: ['promisse'],
+  props: ['promisse', 'id'],
   data () {
     return {
       text: '',
@@ -53,6 +55,23 @@ export default {
   },
   beforeMount () {
     this.getlog()
+  },
+  updated () {
+    this.$nextTick(function () {
+      axiosInstance.post('users/edit/' + this.id + '/refresh').then((response) => {
+        this.text = ''
+        console.log(response.data)
+        response.data.forEach(log => {
+          this.text += 'Data/hora: '
+          this.text += log.data
+          this.text += ' IP: '
+          this.text += log.ip
+          this.text += ' Status: '
+          this.text += log.status === 'ok' ? 'sucesso;' : 'falhou;'
+          this.text += '\n'
+        })
+      })
+    })
   }
 }
 </script>

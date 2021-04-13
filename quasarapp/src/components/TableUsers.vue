@@ -49,14 +49,9 @@
         <q-tr
         v-show="props.expand"
         :props="props"
-        v-for="col,index in props.cols"
+        v-for="col in props.cols"
         :key="col.name"
         >
-         <q-td class="bg-grey-2" colspan="100%" v-if="index==0">
-            <div class="text-left">
-              <q-btn flat :to="{ path: '/users/edit/'+props.key }" label="Editar usuário"></q-btn>
-            </div>
-          </q-td>
 
           <q-td class="bg-grey-2" colspan="100%" v-show="col.label == '' && col.field != ''">
             <div class="text-left">
@@ -64,6 +59,14 @@
             </div>
           </q-td>
         </q-tr>
+
+         <q-td
+        v-show="props.expand"
+         class="bg-grey-2" colspan="100%">
+            <div class="text-left">
+              <q-btn class="full-width" text-color="black" color="standard" :to="{ path: '/users/edit/'+props.key }" label="Editar usuário" />
+            </div>
+          </q-td>
 
       </template>
     </q-table>
