@@ -9,7 +9,6 @@ use App\Models\Group;
 use App\Models\Access_log;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\PermissionController;
 use Illuminate\Http\Request;
 
 /*
@@ -44,7 +43,18 @@ Route::post('/login',[LoginController::class, 'authenticate']);
 Route::post('/logout',[LoginController::class, 'logout']);
 
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard',function() {
+        return view ( 'app' );
+    })->name('dashboard');
     //permission user
+    Route::post('/users/permissions',function() {
+        foreach (Auth::user()->permission as $permission) {
+            $permissions[$permission->id] = [
+                $permission->name
+            ];
+        }
+        return $permissions;
+    });
     Route::middleware('auth.user')->group(function () {
         Route::get('/users',function() {
             return view ( 'app' );
@@ -59,91 +69,131 @@ Route::middleware('auth')->group(function () {
             }
         });
 
-        Route::get('/dashboard',function() {
-            return view ( 'app' );
-        })->name('dashboard');
+        //tabela de usuarios
+        Route::post('/users',function(Request $request) {
+            $page = $request->query('page');
+            $num_rows = $request->query('rows');
+            //opcional
+            $search = $request->query('search');
+            //opcional
 
-        Route::post('/users',[UserController::class, 'index']);
-
-        Route::post('/users/permissions/{id}',[UserController::class, 'permissions']);
-
-        //modificar url no front
-        Route::post('/users/permissions/save',[UserController::class, 'updatePermissions']);
-
-        Route::post('/users/permissions',function() {
-            foreach (Auth::user()->permission as $permission) {
-                $permissions[$permission->id] = [
-                    $permission->name
-                ];
+            $total_num_rows = User::query()->get()->count();
+            if ($num_rows == 0) {
+                $num_rows = $total_num_rows;
             }
-            return $permissions;
+            $index = User::query()
+            ->offset(($page - 1) * $num_rows)
+            ->limit($num_rows)
+            ->where('users.name', 'like', "%{$search}%")
+            ->orWhere('users.email', 'like', "%{$search}%")
+            ->leftJoin('details', 'users.detail_id', '=', 'details.id')
+            ->leftJoin('users AS admin', 'details.adm_user', '=', 'admin.id')
+            ->leftJoin('departments', 'details.department_id', '=', 'departments.id')
+            ->select('users.*', 'details.unit', 'details.lastname','details.phone','details.role','details.ramal','details.technical_time','admin.name AS admin','departments.name AS department')
+            ->orderBy('users.name')
+            ->get();
+            return ['users' => $index, 'total_num_rows' => $total_num_rows];
         });
 
-        Route::post('/permissions',[PermissionController::class, 'index']);
-    });
+        ///users/permissions
+        Route::post('/users/permissions/save',function(Request $request) {
+            $id = $request->input('id');
+            $permissions = $request->input('permissions');
+            $groups = $request->input('groups');
+            $admin = $request->input('admin');
+            $user = User::find($id);
+            $user->permission()->sync([]);
+            foreach ($permissions as $key => $value) {
+                $user->permission()->save(Permission::where('name', $value)->first());
+            }
+            $permissionsAll = Permission::all();
+            $permissionsChecked = $permissions;
+        });
 
-    //subistituir por [permissionController::class, 'index']
-    Route::post('/auths',function() {
-        foreach (Auth::user()->permission as $permission) {
-            $permissions[$permission->id] = [
-                $permission->name
+        Route::post('/users/permissions/{id}',function($id) {
+            $user = User::find($id);
+            $user_permission = '';
+            $return = [];
+            foreach (Permission::all() as $Permission) {
+                foreach ($Permission->groups as $group) {
+                    if (isset($return[$group->name])) {
+                        array_push($return[$group->name],[$Permission->name, $Permission->description]);
+                    } else {
+                        $return[$group->name] = [[$Permission->name, $Permission->description]];
+                    }
+                }
+                if (isset($return['all auths'])) {
+                    $return['all auths'] = [...$return['all auths'], [$Permission->name, $Permission->description]];
+                } else {
+                    $return['all auths'] = [[$Permission->name, $Permission->description]];
+                }
+            }
+            $user_permission = [];
+            foreach ($user->permission as $key => $permission) {
+                if (isset($user->permission)) {
+                    array_push($user_permission, $permission->name);
+                } else {
+                    $user_permission = [];
+                }
+            }
+
+            return ['all_permissions' => $return, 'user_permissions' => $user_permission];
+        });
+
+        ///users/permissions
+
+        //users/edit
+        Route::get('/users/edit/{id}',function($id) {
+            $permission = User::find($id);
+            if ($permission) {
+                return view ( 'app' );
+            } else {
+                return response()->view('error.404',[], 404);
+            }
+        });
+
+        Route::post('/users/edit/{id}/refresh',function($id) {
+            $log = Access_log::where('user_id',$id)->orderByDesc('hour_access')->get();
+            $return = [];
+            foreach ($log as $key => $value) {
+                $return[] = [
+                    'data' => $value->hour_access,
+                    'ip' => $value->ip,
+                    'status' => $value->status,
+                ];
+            };
+            return $return;
+        });
+
+        Route::post('/users/edit/{id}/save',function($id,Request $request) {
+            $user = User::find($id);
+            $technical_time = $request->input('technical_time');
+            $user->detail->technical_time = $technical_time;
+            $user->detail->save();
+            return $user;
+        });
+
+        Route::post('/users/edit/{id}',function($id) {
+            $user = User::find($id);
+            $log = Access_log::where('user_id',$id)->orderByDesc('hour_access')->get();
+            $return = [];
+            $return[] = (object) [
+                'user' => $user, 
+                'details' => $user->detail
             ];
-        }
-        return $permissions;
+
+            foreach ($log as $key => $value) {
+                $return[] = [
+                    'data' => $value->hour_access,
+                    'ip' => $value->ip,
+                    'status' => $value->status,
+                ];
+            };
+            return $return;
+        });
+        //users/edit
     });
-
-    //subistituir por [permissionController::class, 'index']
 });
-//mudar local de permissão
- Route::get('/users/edit/{id}',function($id) {
-     $permission = User::find($id);
-     if ($permission) {
-         return view ( 'app' );
-     } else {
-         return response()->view('error.404',[], 404);
-     }
- });
-
- Route::post('/users/edit/{id}',function($id) {
-     $user = User::find($id);
-     $log = Access_log::where('user_id',$id)->orderByDesc('hour_access')->get();
-     $return = [];
-     $return[] = (object) [
-         'user' => $user, 
-         'details' => $user->detail
-     ];
-
-     foreach ($log as $key => $value) {
-         $return[] = [
-             'data' => $value->hour_access,
-             'ip' => $value->ip,
-             'status' => $value->status,
-         ];
-     };
-     return $return;
- });
-
- Route::post('/users/edit/{id}/refresh',function($id) {
-     $log = Access_log::where('user_id',$id)->orderByDesc('hour_access')->get();
-     $return = [];
-     foreach ($log as $key => $value) {
-         $return[] = [
-             'data' => $value->hour_access,
-             'ip' => $value->ip,
-             'status' => $value->status,
-         ];
-     };
-     return $return;
- });
-
- Route::post('/users/edit/{id}/save',function($id,Request $request) {
-     //return [$id, $request->input('technical_time')];
-     $user = User::find($id);
-     $technical_time = $request->input('technical_time');
-     $user->detail->technical_time = $technical_time;
-     $user->detail->save();
-     return $user;
- });
 
 //remover na produção
 

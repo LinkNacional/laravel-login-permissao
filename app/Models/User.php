@@ -32,6 +32,7 @@ class User extends Authenticatable {
      * @var array
      */
     protected $guarded = [];
+    protected $hidden = ['detail_id'];
 
     public function permission() {
         return $this->belongsToMany(Permission::class);

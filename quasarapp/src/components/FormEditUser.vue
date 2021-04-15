@@ -15,7 +15,7 @@
                     <q-input :disable="true" v-model="departamento" filled label="Departamento"/>
                 </div>
                 <div >
-                    <q-input :disable="true" v-model="gerente" filled label="Gerente"/>
+                    <q-input :disable="true" v-model="gerente" filled label="Gestor do usuário"/>
                 </div>
                 <div >
                     <q-input :disable="true" v-model="unidade" filled label="Unidade"/>
@@ -30,7 +30,7 @@
                     <q-input :disable="true" v-model="ramal" filled label="Ramal"/>
                 </div>
                 <div>
-                    <q-input v-model="hora_tecnica" filled label="Hora Tecnica">
+                    <q-input v-model="hora_tecnica" filled label="Hora Tecnica"/>
                 </div>
                 <div>
                     <q-btn class="full-width" color="primary" @click="save()" label="Salvar" />

@@ -1,4 +1,5 @@
 <template>
+<div>
   <q-item clickable tag="a" :to="{ path: link }">
     <q-item-section v-if="icon" avatar>
       <q-icon :name="icon" />
@@ -9,6 +10,7 @@
       <q-item-label caption>{{ caption }}</q-item-label>
     </q-item-section>
   </q-item>
+</div>
 </template>
 
 <script>

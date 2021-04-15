@@ -3,23 +3,29 @@
     <q-form @submit="onSubmit" class="q-gutter-md">
 
       <div class="row col-12">
-        <q-checkbox clickable v-model="admin"  v-on:click.native="checkAll()" val="Admin" label="Admin" color="red"  />
+        <!-- <q-checkbox clickable v-model="admin" :val="false" v-on:click.native="checkAll()" label="Admin" color="red"  /> -->
+        <q-checkbox clickable @input="checkAll()" v-model="admin" label="Admin" color="red"  />
       </div>
 
       <div class="row">
-        <div class="q-pa-md" style="max-width: 350px"
-        v-for="grp,index,val in data_teste" :key="index"
+        <div class="q-pa-md col-4"
+        v-for="grp,index,val in allPermissions" :key="index"
         >
           <q-list bordered >
             <q-item clickable v-ripple>
             <q-checkbox clickable v-on:click.native="checkGroup(index)" v-model="groups" :val="index" :label="index" :color="colors[val]" />
             </q-item>
             <q-separator />
-            <q-item clickable v-ripple
+            <div
             v-for="permission in grp" :key="permission"
             >
-              <q-checkbox  keep-color v-model="permissions" :val="permission" :label="permission" :color="colors[val]" />
-            </q-item>
+                 <q-item clickable v-ripple>
+                    <q-item-section>
+                      <q-item-label><q-checkbox  keep-color v-model="permissions" :val="permission[0]" :label="permission[0]" :color="colors[val]" /></q-item-label>
+                      <q-item-label caption>{{permission[1]}}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+            </div>
           </q-list>
         </div>
       </div>
@@ -39,7 +45,7 @@ export default {
   data () {
     return {
       // dados de teste
-      data_teste: {},
+      allPermissions: {},
       data: [],
       admin: false,
       contador: 0,
@@ -51,20 +57,6 @@ export default {
     }
   },
   methods: {
-
-    getPermissionsFromUser () {
-      this.$q.loading.show()
-      axiosInstance.post('/users/permissions/' + this.id)
-        .then((response) => {
-          response.data.forEach(permission => {
-            this.permissions.push(permission.name)
-            this.loadingStop()
-          }).catch((error) => {
-            console.log(error)
-            this.loadingStop()
-          })
-        })
-    },
     loadingStop () {
       this.$q.loading.hide()
       this.loading = false
@@ -81,38 +73,47 @@ export default {
     },
     checkGroup (index) {
       if (this.groups.find(group => group === index)) {
-        this.data_teste[index].forEach(permission => {
-          this.permissions.push(permission)
+        this.allPermissions[index].forEach(permission => {
+          this.permissions.push(permission[0])
         })
       } else {
-        this.data_teste[index].forEach(permission => {
-          this.permissions = this.permissions.filter(e => e !== permission)
+        this.allPermissions[index].forEach(permission => {
+          this.permissions = this.permissions.filter(e => e !== permission[0])
         })
       }
     },
     checkAll () {
-      if (!this.admin) {
-        this.permissions = []
-        return 'false'
-      }
-      var allPermissions = this.data_teste
-      Object.entries(allPermissions).forEach((permission) => {
-        permission.forEach((permission_, index) => {
-          if (index !== 0) {
-            permission_.forEach((permission__) => {
-              if (!this.permissions.find(permission => permission === permission__)) {
-                this.permissions.push(permission__)
-              }
-            })
-          }
+      if (this.admin) {
+        var allPermissions = this.allPermissions
+        Object.entries(allPermissions).forEach((permission) => {
+          permission.forEach((permission_, index) => {
+            if (index !== 0) {
+              permission_.forEach((permission__) => {
+                if (!this.permissions.find(permission => permission === permission__[0])) {
+                  this.permissions.push(permission__[0])
+                }
+              })
+            }
+          })
         })
-      })
+        this.$nextTick(function () {
+          this.admin = true
+        })
+      } else {
+        this.permissions = []
+        this.$nextTick(function () {
+          this.admin = false
+        })
+      }
     },
-    getAllPermissions () {
+    getPermissions () {
       this.$q.loading.show()
-      axiosInstance.post('/permissions').then((response) => {
-        this.data_teste = response.data
-        delete this.data_teste['all auths']
+      axiosInstance.post('/users/permissions/' + this.id).then((response) => {
+        this.allPermissions = response.data.all_permissions
+        delete this.allPermissions['all auths']
+        response.data.user_permissions.forEach(permission => {
+          this.permissions.push(permission)
+        })
         this.loadingStop()
       }).catch((error) => {
         console.log(error)
@@ -121,7 +122,7 @@ export default {
     },
     checkGroupReverse () {
       const selecionPermissions = this.permissions
-      const allPermissions = this.data_teste
+      const allPermissions = this.allPermissions
       Object.entries(allPermissions).forEach((permission) => {
         const permissionsGroup = permission[1]
         const permissionName = permission[0]
@@ -134,23 +135,19 @@ export default {
           }
         })
         if (!pass) {
-          this.groups = this.groups.filter(e => e !== permissionName)
+          this.groups = this.groups.filter(e => e !== permissionName[0])
         } else {
-          if (!this.groups.find(group => group === permissionName)) {
-            this.groups.push(permissionName)
+          if (!this.groups.find(group => group === permissionName[0])) {
+            this.groups.push(permissionName[0])
           }
         }
       })
     }
   },
-  beforeMount () {
-    this.getAllPermissions()
-    this.getPermissionsFromUser()
-  },
   watch: {
     permissions: function () {
       const selecionPermissions = this.permissions
-      const allPermissions = this.data_teste
+      const allPermissions = this.allPermissions
       var cont = 0
 
       Object.entries(allPermissions).forEach((permission) => {
@@ -158,7 +155,7 @@ export default {
         const permissionName = permission[0]
         const pass = permissionsGroup.every(permissionGroup => {
           cont++
-          const exist = selecionPermissions.find(permission => permission === permissionGroup)
+          const exist = selecionPermissions.find(permission => permission === permissionGroup[0])
           if (exist === undefined) {
             return false
           } else {
@@ -179,6 +176,9 @@ export default {
         this.admin = false
       }
     }
+  },
+  beforeMount () {
+    this.getPermissions()
   }
 }
 </script>

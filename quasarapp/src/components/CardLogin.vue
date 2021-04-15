@@ -26,7 +26,7 @@
             <q-btn unelevated size="lg" @click="login" :style="{ Color:color }" class="full-width" label="Login" />
           </q-card-actions>
           <q-card-section class="text-center q-pa-none">
-            <a @click="esqueciasenha" style="cursor: pointer;" class="text-grey-6">Esqueci a Senha</a>
+            <a @click="forgotPassword()" style="cursor: pointer;" class="text-grey-6">Esqueci a Senha</a>
           </q-card-section>
         </q-card>
       </div>
@@ -51,7 +51,7 @@ export default {
     }
   },
   methods: {
-    esqueciasenha () {
+    forgotPassword () {
     },
     async login () {
       axiosInstance.post('/login', {

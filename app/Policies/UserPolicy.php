@@ -17,9 +17,9 @@ class UserPolicy {
         //
     }
 
-    public function list(User $user) {
+    public function control_users(User $user) {
         foreach ($user->permission as $permission) {
-            if ($permission->name === 'users') {
+            if ($permission->name === 'Gerenciar usuários') {
                 return true;
             }
         }

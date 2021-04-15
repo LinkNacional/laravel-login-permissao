@@ -1,5 +1,4 @@
 <template>
-<!-- <div class="q-pa-xl" style="width:45%"> -->
   <div v-show="!isLoadedLog" class="q-pa-md">
     <q-input
       v-model="text"

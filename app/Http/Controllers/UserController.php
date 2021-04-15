@@ -87,23 +87,4 @@ class UserController extends Controller {
             return response('user not found',403);
         }
     }
-
-    /**
-      * Display permission from user.
-        * @param  Request  $request
-      * @return \Illuminate\Http\Response
-      */
-    public function updatePermissions(Request $request) {
-        $id = $request->input('id');
-        $permissions = $request->input('permissions');
-        $groups = $request->input('groups');
-        $admin = $request->input('admin');
-        $user = User::find($id);
-        $user->permission()->sync([]);
-        foreach ($permissions as $key => $value) {
-            $user->permission()->save(Permission::where('name', $value)->first());
-        }
-        $permissionsAll = Permission::all();
-        $permissionsChecked = $permissions;
-    }
 }

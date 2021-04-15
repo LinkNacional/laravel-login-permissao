@@ -15,7 +15,6 @@ class CreateDetailsTable extends Migration {
             $table->id();
             $table->foreignId('adm_user')->constrained('users');
             $table->foreignId('department_id')->constrained();
-            $table->foreignId('user_id')->constrained();
             $table->string('unit');
             $table->string('lastname');
             $table->string('phone');

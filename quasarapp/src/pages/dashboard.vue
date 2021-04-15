@@ -1,6 +1,6 @@
 <template>
     <div class="q-pa-md row items-start q-gutter-md">
-      <CardInfoDashboard style="color:purple" v-if=" auths_names.find(element => element == 'users') "/>
+      <CardInfoDashboard style="color:purple" v-if=" auths_names.find(element => element == 'Gerenciar usuários') "/>
     </div>
 </template>
 
