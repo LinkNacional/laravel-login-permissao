@@ -17,18 +17,6 @@ use Doctrine\DBAL\Schema\Index;
      */
 class UserController extends Controller {
     public function create(Request $request) {
-        $user = new User;
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = Hash::make($request->password);
-        $user->detail_id = 1;
-        $user->save();
-        $user->permission()->sync($request->permissions);
-        $credentials = $request->only('email', 'password');
-        if (Auth::attempt($credentials)) {
-            return redirect()->route('dashboard');
-        }
-        return redirect()->route('login');
     }    
 
     /**

@@ -8,7 +8,8 @@
         "watch-poll": "mix watch -- --watch-options-poll=1000",
         "hot": "mix watch --hot",
         "serve": "php artisan serve",
-        "production": "mix --production"
+        "production": "mix --production",
+        "test": "php artisan test"
     },
     "devDependencies": {
         "axios": "^0.21",

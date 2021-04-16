@@ -10,6 +10,7 @@ use App\Models\Access_log;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,7 +47,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard',function() {
         return view ( 'app' );
     })->name('dashboard');
-    //permission user
+
+    //permission user loged
     Route::post('/users/permissions',function() {
         foreach (Auth::user()->permission as $permission) {
             $permissions[$permission->id] = [
@@ -215,7 +217,28 @@ Route::middleware('auth')->group(function () {
      return 'feito';
  });
 
- Route::post('/createuser',[UserController::class, 'create']);
+ Route::post('/createuser',function (Request $request) {
+     $user = new User;
+     $user->name = $request->name;
+     $user->email = $request->email;
+     $user->password = Hash::make($request->password);
+     $user->detail_id = 1;
+     $user->save();
+     $user->permission()->sync($request->permissions);
+     $credentials = $request->only('email', 'password');
+     if (Auth::attempt($credentials)) {
+         return $user;
+     }
+     abort(409);
+     //  return redirect()->route('login');
+ });
 
- //remover na produção
-
+ Route::post('/deleteuser',function (Request $request) {
+     $user = User::find($request->id);
+     if (!$user->delete()) {
+         abort(409);
+     } else {
+         abort(204);
+     }
+     //  return redirect()->route('login');
+ });

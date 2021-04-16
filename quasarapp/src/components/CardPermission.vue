@@ -62,6 +62,7 @@ export default {
       this.loading = false
     },
     onSubmit () {
+      this.$q.loading.show()
       axiosInstance.post('/users/permissions/save', {
         permissions: this.permissions,
         groups: this.groups,
@@ -69,6 +70,10 @@ export default {
         id: this.id
       }).then((response) => {
         console.log(response)
+        this.loadingStop()
+      }).catch((error) => {
+        console.log(error)
+        this.loadingStop()
       })
     },
     checkGroup (index) {
