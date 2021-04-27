@@ -7,21 +7,25 @@
 import Echo from 'laravel-echo'
 export default {
   name: 'App',
-  created () {
+  mounted () {
     this.listen()
   },
   methods: {
     listen () {
       window.Pusher = require('pusher-js')
+      // const client = require('pusher-js')
 
       window.Echo = new Echo({
         broadcaster: 'pusher',
-        key: process.env.MIX_PUSHER_APP_KEY,
-        cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-        forceTLS: true
+        key: 'e1b950a49e2964e115dc',
+        wsHost: '127.0.0.1',
+        wsPort: 6001,
+        forceTLS: false,
+        disableStatus: true
+        // client: client
       })
 
-      console.log(this.$echo.channel('channel'))
+      // console.log(this.$echo)
     }
   }
 }
