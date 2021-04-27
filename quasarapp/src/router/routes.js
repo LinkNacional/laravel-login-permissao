@@ -5,6 +5,7 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('pages/Index.vue') },
+      { path: '/teste', component: () => import('pages/teste.vue') },
       { path: 'dashboard', component: () => import('src/pages/dashboard.vue') },
       { path: 'users', component: () => import('src/pages/users/user.vue') },
       { path: '/users/permission/:id', component: () => import('src/pages/users/permissions.vue'), props: true },

@@ -1,3 +1,4 @@
+
 <template>
   <div v-show="!isLoadedLog" class="q-pa-md">
     <q-input
@@ -5,13 +6,13 @@
       filled
       type="textarea"
       rows="20"
-      :disable="true"
     />
   </div>
 </template>
+<script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
 <script>
-import { axiosInstance } from 'boot/axios'
 
 export default {
 
@@ -50,27 +51,24 @@ export default {
     loadStopLog () {
       this.$q.loading.hide()
       this.isLoadedLog = false
+    },
+    socket () {
+        Pusher.logToConsole = true;
+
+      var pusher = new Pusher('e1b950a49e2964e115dc', {
+        cluster: 'mt1'
+      });
+
+      var channel = pusher.subscribe('my-channel');
+      channel.bind('my-event', function(data) {
+        app.messages.push(JSON.stringify(data));
+    });
     }
   },
   beforeMount () {
     this.getlog()
-  },
-  updated () {
-    this.$nextTick(function () {
-      axiosInstance.post('users/edit/' + this.id + '/refresh').then((response) => {
-        this.text = ''
-        console.log(response.data)
-        response.data.forEach(log => {
-          this.text += 'Data/hora: '
-          this.text += log.data
-          this.text += ' IP: '
-          this.text += log.ip
-          this.text += ' Status: '
-          this.text += log.status === 'ok' ? 'sucesso;' : 'falhou;'
-          this.text += '\n'
-        })
-      })
-    })
+    // this.socket()
   }
+
 }
 </script>

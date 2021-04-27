@@ -2,39 +2,45 @@
     <div v-show="!isLoaded">
         <form>
             <div class="q-pa-md">
-                <div>
-                    <q-input :disable="true" v-model="name" filled label="Nome"/>
+              <div>
+                 <label>Hora Técnica</label>
+               <div style="margin-bottom:1%" class="row ">
+                    <q-input filled style="width:75%" v-model="hora_tecnica"  >
+                       <template v-slot:prepend>
+                        R$
+                      </template>
+                    </q-input>
+                    <q-btn style="width:25%" color="primary" @click="save()" label="Salvar" />
                 </div>
-                <div>
-                    <q-input :disable="true" v-model="sobrenome" filled label="Sobrenome"/>
+              </div>
+                <div style="margin-bottom:1%">
+                    <q-input  :disable="true" v-model="name"  label="Nome"/>
+                </div >
+                <div style="margin-bottom:1%">
+                    <q-input  :disable="true" v-model="sobrenome"  label="Sobrenome"/>
+                </div >
+                <div style="margin-bottom:1%">
+                    <q-input  :disable="true" v-model="email"  label="E-Mail"/>
                 </div>
-                <div >
-                    <q-input :disable="true" v-model="email" filled label="E-Mail"/>
+                <div style="margin-bottom:1%">
+                    <q-input  :disable="true" v-model="departamento"  label="Departamento"/>
                 </div>
-                <div >
-                    <q-input :disable="true" v-model="departamento" filled label="Departamento"/>
+                <div style="margin-bottom:1%">
+                    <q-input  :disable="true" v-model="gerente"  label="Gestor do usuário"/>
                 </div>
-                <div >
-                    <q-input :disable="true" v-model="gerente" filled label="Gestor do usuário"/>
+                <div style="margin-bottom:1%">
+                    <q-input  :disable="true" v-model="unidade"  label="Unidade"/>
                 </div>
-                <div >
-                    <q-input :disable="true" v-model="unidade" filled label="Unidade"/>
+                <div style="margin-bottom:1%">
+                    <q-input  :disable="true" v-model="telefone"  label="Telefone"/>
                 </div>
-                <div >
-                    <q-input :disable="true" v-model="telefone" filled label="Telefone"/>
+                <div style="margin-bottom:1%">
+                    <q-input  :disable="true" v-model="cargo"  label="Cargo"/>
                 </div>
-                <div>
-                    <q-input :disable="true" v-model="cargo" filled label="Cargo"/>
+                <div style="margin-bottom:1%">
+                    <q-input  :disable="true" v-model="ramal"  label="Ramal"/>
                 </div>
-                <div>
-                    <q-input :disable="true" v-model="ramal" filled label="Ramal"/>
-                </div>
-                <div>
-                    <q-input v-model="hora_tecnica" filled label="Hora Tecnica"/>
-                </div>
-                <div>
-                    <q-btn class="full-width" color="primary" @click="save()" label="Salvar" />
-                </div>
+
             </div>
         </form>
     </div>

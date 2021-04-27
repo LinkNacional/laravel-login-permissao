@@ -2,8 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\userController;
-use App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,7 +15,5 @@ use App\Models\User;
 */
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
-    Route::post('/list',function () {
-        return User::all();
-    });
+    return $request->user();
 });

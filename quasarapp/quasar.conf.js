@@ -19,7 +19,8 @@ module.exports = function (/* ctx */) {
     // --> boot files are part of "main.js"
     // https://quasar.dev/quasar-cli/boot-files
     boot: [
-
+      'axios',
+      'laravel-echo'
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
@@ -81,8 +82,9 @@ module.exports = function (/* ctx */) {
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
     framework: {
-      iconSet: 'material-icons', // Quasar icon set
-      lang: 'pt-br', // Quasar language pack
+      // iconSet: 'material-icons', // Quasar icon set
+      // lang: 'pt-br', // Quasar language pack
+      all: true,
       config: {
         loadingBar: {
           color: 'red',

@@ -7,10 +7,10 @@ use App\Models\Detail;
 use App\Models\Permission;
 use App\Models\Group;
 use App\Models\Access_log;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Events\Hello;
 
 /*
 |--------------------------------------------------------------------------
@@ -241,4 +241,8 @@ Route::middleware('auth')->group(function () {
          abort(204);
      }
      //  return redirect()->route('login');
+ });
+
+ Route::get('/emmitEvent',function () {
+     broadcast(new Hello('hello world'));
  });
