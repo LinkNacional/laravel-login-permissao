@@ -4,29 +4,8 @@
   </div>
 </template>
 <script>
-import Echo from 'laravel-echo'
+
 export default {
-  name: 'App',
-  mounted () {
-    this.listen()
-  },
-  methods: {
-    listen () {
-      window.Pusher = require('pusher-js')
-      // const client = require('pusher-js')
-
-      window.Echo = new Echo({
-        broadcaster: 'pusher',
-        key: 'e1b950a49e2964e115dc',
-        wsHost: '127.0.0.1',
-        wsPort: 6001,
-        forceTLS: false,
-        disableStatus: true
-        // client: client
-      })
-
-      // console.log(this.$echo)
-    }
-  }
+  name: 'App'
 }
 </script>

@@ -240,9 +240,8 @@ Route::middleware('auth')->group(function () {
      } else {
          abort(204);
      }
-     //  return redirect()->route('login');
  });
 
- Route::get('/emmitEvent',function () {
-     broadcast(new Hello('hello world'));
+ Route::get('/emmitEvent/{id}',function ($id) {
+     broadcast(new Hello($id));
  });

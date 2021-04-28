@@ -9,9 +9,8 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Access_log;
 
-class Hello implements ShouldBroadcast {
+class Log implements ShouldBroadcast {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
@@ -19,16 +18,14 @@ class Hello implements ShouldBroadcast {
      *
      * @return void
      */
-    private $id;
-
-    public function __construct($id) {
-        $this->id = $id;
+    public function __construct() {
+        //
     }
 
     public function broadcastWith() {
-        $log = Access_log::where('user_id',$this->id)->orderByDesc('hour_access')->get();
+        $log = Access_log::where('user_id',$id)->orderByDesc('hour_access')->get();
         $return = [];
-        foreach ($log as $value) {
+        foreach ($log as $key => $value) {
             $return[] = [
                 'data' => $value->hour_access,
                 'ip' => $value->ip,
@@ -36,6 +33,9 @@ class Hello implements ShouldBroadcast {
             ];
         };
         return $return;
+        // return [
+        //     'Hello' => 'there'
+        // ];
     }
 
     /**

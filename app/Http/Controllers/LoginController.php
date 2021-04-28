@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Access_log;
 use App\Models\User;
+use App\Events\Hello;
 
 class LoginController extends Controller {
     /**
@@ -33,6 +34,7 @@ class LoginController extends Controller {
             return response('logado',200);
         }
         LoginController::save_access_log($request,'fail');
+
         return response('email ou senha invalida', 401);
     }
 
@@ -44,5 +46,8 @@ class LoginController extends Controller {
         $log->ip = $request->ip();
         $log->status = $status;
         $log->save();
+        if (isset($id[0])) {
+            broadcast(new Hello($id[0]->id));
+        }
     }
 }

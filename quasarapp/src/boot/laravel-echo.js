@@ -1,12 +1,14 @@
 import Echo from 'laravel-echo'
 
-window.io = require('socket.io-client')
+window.Pusher = require('pusher-js')
 
-const echo = new Echo({
-  broadcaster: 'socket-io',
-  host: window.location.hostname + ':6001'
+window.Echo = new Echo({
+  broadcaster: 'pusher',
+  key: 'e1b950a49e2964e115dc',
+  wsHost: '127.0.0.1',
+  wsPort: 6001,
+  forceTLS: false,
+  disableStatus: true
 })
 
-export default ({ Vue }) => {
-  Vue.prototype.$echo = echo
-}
+// export { echo }

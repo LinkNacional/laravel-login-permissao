@@ -1,6 +1,6 @@
 
 <template>
-  <div v-show="!isLoadedLog" class="q-pa-md">
+  <div class="q-pa-md">
     <q-input
       v-model="text"
       filled
@@ -9,10 +9,9 @@
     />
   </div>
 </template>
-<script src="https://js.pusher.com/7.0/pusher.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
 <script>
+import Echo from 'laravel-echo'
 
 export default {
 
@@ -27,6 +26,10 @@ export default {
     }
   },
   methods: {
+    loadStopLog () {
+      this.$q.loading.hide()
+      this.isLoadedLog = false
+    },
     async getlog () {
       this.promisse.then((response) => {
         this.log = response.data
@@ -48,27 +51,41 @@ export default {
           this.loadStopLog()
         })
     },
-    loadStopLog () {
-      this.$q.loading.hide()
-      this.isLoadedLog = false
-    },
     socket () {
-        Pusher.logToConsole = true;
-
-      var pusher = new Pusher('e1b950a49e2964e115dc', {
-        cluster: 'mt1'
-      });
-
-      var channel = pusher.subscribe('my-channel');
-      channel.bind('my-event', function(data) {
-        app.messages.push(JSON.stringify(data));
-    });
+      window.Echo.channel('channel')
+        .listen('Hello', (e) => {
+          this.log = ''
+          this.text = ''
+          this.log = e
+          console.log(e)
+          this.log.forEach(log => {
+            this.cont++
+            this.text += 'Data/hora: '
+            this.text += log.data
+            this.text += ' IP: '
+            this.text += log.ip
+            this.text += ' Status: '
+            this.text += log.status === 'ok' ? 'sucesso;' : 'falhou;'
+            this.text += '\n'
+          })
+        })
     }
   },
   beforeMount () {
-    this.getlog()
-    // this.socket()
-  }
+    window.Pusher = require('pusher-js')
 
+    window.Echo = new Echo({
+      broadcaster: 'pusher',
+      key: 'e1b950a49e2964e115dc',
+      wsHost: '127.0.0.1',
+      wsPort: 6001,
+      forceTLS: false,
+      disableStatus: true
+    })
+
+    this.socket()
+    this.getlog()
+  }
 }
+
 </script>

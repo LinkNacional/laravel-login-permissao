@@ -28,3 +28,4 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //         forceTLS: false,
 //         disableStatus: true
 //       })
+//http://127.0.0.1:8000/laravel-websockets
