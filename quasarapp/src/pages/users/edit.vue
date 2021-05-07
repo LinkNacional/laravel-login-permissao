@@ -1,11 +1,11 @@
 <template>
     <div class="row">
        <div class="col-6">
-            <FormEditUser :promisse="promisse" :id="id"/>
+          <FormEditUser :promisse="promisse" :id="id"/>
         </div>
 
         <div class="col-6">
-        <LogUser :promisse="promisse" :id="id"/>
+          <LogUser :promisse="promisse" :id="id"/>
         </div>
 
     </div>

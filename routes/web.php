@@ -6,8 +6,9 @@ use App\Models\User;
 use App\Models\Detail;
 use App\Models\Permission;
 use App\Models\Group;
-use App\Models\Access_log;
+use App\Http\Controllers\UsersPermissionController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Events\Hello;
@@ -48,16 +49,10 @@ Route::middleware('auth')->group(function () {
         return view ( 'app' );
     })->name('dashboard');
 
-    //permission user loged
-    Route::post('/users/permissions',function() {
-        foreach (Auth::user()->permission as $permission) {
-            $permissions[$permission->id] = [
-                $permission->name
-            ];
-        }
-        return $permissions;
-    });
+    Route::post('/users/permissions',[UsersPermissionController::class, 'permissions_from_user_logged']);
+
     Route::middleware('auth.user')->group(function () {
+        //
         Route::get('/users',function() {
             return view ( 'app' );
         });
@@ -71,80 +66,6 @@ Route::middleware('auth')->group(function () {
             }
         });
 
-        //tabela de usuarios
-        Route::post('/users',function(Request $request) {
-            $page = $request->query('page');
-            $num_rows = $request->query('rows');
-            //opcional
-            $search = $request->query('search');
-            //opcional
-
-            $total_num_rows = User::query()->get()->count();
-            if ($num_rows == 0) {
-                $num_rows = $total_num_rows;
-            }
-            $index = User::query()
-            ->offset(($page - 1) * $num_rows)
-            ->limit($num_rows)
-            ->where('users.name', 'like', "%{$search}%")
-            ->orWhere('users.email', 'like', "%{$search}%")
-            ->leftJoin('details', 'users.detail_id', '=', 'details.id')
-            ->leftJoin('users AS admin', 'details.adm_user', '=', 'admin.id')
-            ->leftJoin('departments', 'details.department_id', '=', 'departments.id')
-            ->select('users.*', 'details.unit', 'details.lastname','details.phone','details.role','details.ramal','details.technical_time','admin.name AS admin','departments.name AS department')
-            ->orderBy('users.name')
-            ->get();
-            return ['users' => $index, 'total_num_rows' => $total_num_rows];
-        });
-
-        ///users/permissions
-        Route::post('/users/permissions/save',function(Request $request) {
-            $id = $request->input('id');
-            $permissions = $request->input('permissions');
-            $groups = $request->input('groups');
-            $admin = $request->input('admin');
-            $user = User::find($id);
-            $user->permission()->sync([]);
-            foreach ($permissions as $key => $value) {
-                $user->permission()->save(Permission::where('name', $value)->first());
-            }
-            $permissionsAll = Permission::all();
-            $permissionsChecked = $permissions;
-        });
-
-        Route::post('/users/permissions/{id}',function($id) {
-            $user = User::find($id);
-            $user_permission = '';
-            $return = [];
-            foreach (Permission::all() as $Permission) {
-                foreach ($Permission->groups as $group) {
-                    if (isset($return[$group->name])) {
-                        array_push($return[$group->name],[$Permission->name, $Permission->description]);
-                    } else {
-                        $return[$group->name] = [[$Permission->name, $Permission->description]];
-                    }
-                }
-                if (isset($return['all auths'])) {
-                    $return['all auths'] = [...$return['all auths'], [$Permission->name, $Permission->description]];
-                } else {
-                    $return['all auths'] = [[$Permission->name, $Permission->description]];
-                }
-            }
-            $user_permission = [];
-            foreach ($user->permission as $key => $permission) {
-                if (isset($user->permission)) {
-                    array_push($user_permission, $permission->name);
-                } else {
-                    $user_permission = [];
-                }
-            }
-
-            return ['all_permissions' => $return, 'user_permissions' => $user_permission];
-        });
-
-        ///users/permissions
-
-        //users/edit
         Route::get('/users/edit/{id}',function($id) {
             $permission = User::find($id);
             if ($permission) {
@@ -154,48 +75,24 @@ Route::middleware('auth')->group(function () {
             }
         });
 
-        Route::post('/users/edit/{id}/refresh',function($id) {
-            $log = Access_log::where('user_id',$id)->orderByDesc('hour_access')->get();
-            $return = [];
-            foreach ($log as $key => $value) {
-                $return[] = [
-                    'data' => $value->hour_access,
-                    'ip' => $value->ip,
-                    'status' => $value->status,
-                ];
-            };
-            return $return;
-        });
+        Route::post('/users',[UserController::class, 'list_users_pagination']);
 
-        Route::post('/users/edit/{id}/save',function($id,Request $request) {
-            $user = User::find($id);
-            $technical_time = $request->input('technical_time');
-            $user->detail->technical_time = $technical_time;
-            $user->detail->save();
-            return $user;
-        });
+        Route::post('/users/permissions/save',[UsersPermissionController::class, 'save']);
 
-        Route::post('/users/edit/{id}',function($id) {
-            $user = User::find($id);
-            $log = Access_log::where('user_id',$id)->orderByDesc('hour_access')->get();
-            $return = [];
-            $return[] = (object) [
-                'user' => $user, 
-                'details' => $user->detail
-            ];
+        Route::post('/users/permissions/{id}',[UsersPermissionController::class, 'permissions_from_user']);
 
-            foreach ($log as $key => $value) {
-                $return[] = [
-                    'data' => $value->hour_access,
-                    'ip' => $value->ip,
-                    'status' => $value->status,
-                ];
-            };
-            return $return;
-        });
-        //users/edit
+        Route::post('/users/edit/{id}/log',[UserController::class, 'get_log']);
+
+        Route::post('/users/edit/{id}/save',[UserController::class, 'edit_user']);
+
+        Route::post('/users/edit/{id}',[UserController::class, 'get_informations']);
     });
 });
+
+ //WS
+ Route::get('/emmitEvent/{id}',function ($id) {
+     broadcast(new Hello($id));
+ });
 
 //remover na produção
 
@@ -240,8 +137,4 @@ Route::middleware('auth')->group(function () {
      } else {
          abort(204);
      }
- });
-
- Route::get('/emmitEvent/{id}',function ($id) {
-     broadcast(new Hello($id));
  });
