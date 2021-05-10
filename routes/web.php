@@ -3,14 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use App\Models\Detail;
-use App\Models\Permission;
-use App\Models\Group;
 use App\Http\Controllers\UsersPermissionController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use App\Events\Hello;
 
 /*
@@ -23,6 +18,10 @@ use App\Events\Hello;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('/called/new',function() {
+    return view ( 'app' );
+});
 
 Route::get('/',function() {
     if (Auth::check()) {
@@ -96,45 +95,45 @@ Route::middleware('auth')->group(function () {
 
 //remover na produção
 
- Route::post('/pupolarBanco',function() {
-     $grp = Group::factory()->count(20)->create();
-     Detail::factory()->count(3)->create();
-     $User = User::factory()->count(20)->create();
-     $permission = Permission::factory()->count(20)->create();
-     User::all()->each(function ($user) use ($permission) {
-         $user->permission()->saveMany($permission);
-     });
-     Group::all()->each(function ($group) use ($permission) {
-         $group->permission()->saveMany($permission);
-     });
-     $permUser = new Permission();
-     $permUser->name = 'users';
-     $permUser->Description = 'Permissão para controle de usuario';
-     $permUser->save();
-     return 'feito';
- });
+//  Route::post('/pupolarBanco',function() {
+//      $grp = Group::factory()->count(20)->create();
+//      Detail::factory()->count(3)->create();
+//      $User = User::factory()->count(20)->create();
+//      $permission = Permission::factory()->count(20)->create();
+//      User::all()->each(function ($user) use ($permission) {
+//          $user->permission()->saveMany($permission);
+//      });
+//      Group::all()->each(function ($group) use ($permission) {
+//          $group->permission()->saveMany($permission);
+//      });
+//      $permUser = new Permission();
+//      $permUser->name = 'users';
+//      $permUser->Description = 'Permissão para controle de usuario';
+//      $permUser->save();
+//      return 'feito';
+//  });
 
- Route::post('/createuser',function (Request $request) {
-     $user = new User;
-     $user->name = $request->name;
-     $user->email = $request->email;
-     $user->password = Hash::make($request->password);
-     $user->detail_id = 1;
-     $user->save();
-     $user->permission()->sync($request->permissions);
-     $credentials = $request->only('email', 'password');
-     if (Auth::attempt($credentials)) {
-         return $user;
-     }
-     abort(409);
-     //  return redirect()->route('login');
- });
+//  Route::post('/createuser',function (Request $request) {
+//      $user = new User;
+//      $user->name = $request->name;
+//      $user->email = $request->email;
+//      $user->password = Hash::make($request->password);
+//      $user->detail_id = 1;
+//      $user->save();
+//      $user->permission()->sync($request->permissions);
+//      $credentials = $request->only('email', 'password');
+//      if (Auth::attempt($credentials)) {
+//          return $user;
+//      }
+//      abort(409);
+//      //  return redirect()->route('login');
+//  });
 
- Route::post('/deleteuser',function (Request $request) {
-     $user = User::find($request->id);
-     if (!$user->delete()) {
-         abort(409);
-     } else {
-         abort(204);
-     }
- });
+//  Route::post('/deleteuser',function (Request $request) {
+//      $user = User::find($request->id);
+//      if (!$user->delete()) {
+//          abort(409);
+//      } else {
+//          abort(204);
+//      }
+//  });
