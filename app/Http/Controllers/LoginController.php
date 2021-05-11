@@ -50,4 +50,12 @@ class LoginController extends Controller {
             broadcast(new Hello($id[0]->id));
         }
     }
+
+    public static function verifyLogin() {
+        if (!Auth::check()) {
+            return view ( 'app' );
+        } else {
+            return redirect()->route('dashboard');
+        }
+    }
 }

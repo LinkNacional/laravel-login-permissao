@@ -26,7 +26,7 @@
 
             <div class="row ">
                 <div class="col-11 input">
-                    <div class="text-subtitle2">Porque é urgente ?</div>
+                    <div class="text-subtitle2">Por que é urgente ?</div>
                     <q-input
                         outlined
                         v-model="urgenteText"

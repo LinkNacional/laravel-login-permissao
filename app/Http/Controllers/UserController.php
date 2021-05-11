@@ -96,4 +96,13 @@ class UserController extends Controller {
         };
         return $return;
     }
+
+    function verify_user_exist($id) {
+        $permission = User::find($id);
+        if ($permission) {
+            return view ( 'app' );
+        } else {
+            return response()->view('error.404',[], 404);
+        }
+    }
 }

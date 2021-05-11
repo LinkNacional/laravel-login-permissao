@@ -2,8 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
-use App\Http\Controllers\UsersPermissionController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
 use App\Events\Hello;
@@ -31,67 +29,24 @@ Route::get('/',function() {
     }
 });
 
-Route::get('/login',function() {
-    if (!Auth::check()) {
-        return view ( 'app' );
-    } else {
-        return redirect()->route('dashboard');
-    }
-})->name('login');
-
-Route::post('/login',[LoginController::class, 'authenticate']);
-
-Route::post('/logout',[LoginController::class, 'logout']);
+Route::get('/login',[LoginController::class, 'verifyLogin'])->name('login');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard',function() {
-        return view ( 'app' );
-    })->name('dashboard');
-
-    Route::post('/users/permissions',[UsersPermissionController::class, 'permissions_from_user_logged']);
+    //
+    Route::get('/dashboard',function() {return view ( 'app' );})->name('dashboard');
 
     Route::middleware('auth.user')->group(function () {
         //
-        Route::get('/users',function() {
-            return view ( 'app' );
-        });
+        Route::get('/users',function() {return view ( 'app' );});
 
-        Route::get('/users/permission/{id}',function($id) {
-            $permission = User::find($id);
-            if ($permission) {
-                return view ( 'app' );
-            } else {
-                return response()->view('error.404',[], 404);
-            }
-        });
+        Route::get('/users/permission/{id}',[permissionController::class, 'verify_permission_exist']);
 
-        Route::get('/users/edit/{id}',function($id) {
-            $permission = User::find($id);
-            if ($permission) {
-                return view ( 'app' );
-            } else {
-                return response()->view('error.404',[], 404);
-            }
-        });
-
-        Route::post('/users',[UserController::class, 'list_users_pagination']);
-
-        Route::post('/users/permissions/save',[UsersPermissionController::class, 'save']);
-
-        Route::post('/users/permissions/{id}',[UsersPermissionController::class, 'permissions_from_user']);
-
-        Route::post('/users/edit/{id}/log',[UserController::class, 'get_log']);
-
-        Route::post('/users/edit/{id}/save',[UserController::class, 'edit_user']);
-
-        Route::post('/users/edit/{id}',[UserController::class, 'get_informations']);
+        Route::get('/users/edit/{id}',[UserController::class, 'verify_user_exist']);
     });
 });
 
  //WS
- Route::get('/emmitEvent/{id}',function ($id) {
-     broadcast(new Hello($id));
- });
+ Route::get('/emmitEvent/{id}',function ($id) {broadcast(new Hello($id));});
 
 //remover na produção
 
