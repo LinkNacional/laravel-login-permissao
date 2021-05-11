@@ -15,7 +15,7 @@
 
 <script>
 export default {
-  name: 'ButtonSave',
+  name: 'CardForm',
   props: {
     textHeader: {
       type: String,

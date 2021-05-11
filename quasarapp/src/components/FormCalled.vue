@@ -1,12 +1,6 @@
 <template>
     <div>
-        <q-card class="my-card">
-        <q-card-section>
-            <div class="text-h6 text-center">ABRIR NOVOS CHAMADOS </div>
-        </q-card-section>
-        <q-separator />
-
-        <q-card-section>
+        <CardForm textHeader="ABRIR NOVOS CHAMADOS">
             <div class="row">
                  <div class="col-6 q-ml-md q-mb-md">
                     <div class="text-subtitle2">Assunto *</div>
@@ -16,18 +10,18 @@
                     <div class="text-subtitle2">Prazo ideal *</div>
                     <!-- <q-input outlined v-model="assunto"  /> -->
 
-                    <q-input outlined  v-model="date" mask="date" :rules="['date']">
-                    <template v-slot:append>
-                        <q-icon name="event" class="cursor-pointer">
-                        <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                            <q-date :options="optionsFn" v-model="date">
-                            <div class="row items-center justify-end">
-                                <q-btn v-close-popup label="Close" color="primary" flat />
-                            </div>
-                            </q-date>
-                        </q-popup-proxy>
-                        </q-icon>
-                    </template>
+                    <q-input outlined v-model="date" mask="date" :rules="['date',val => optionsFn(val) || 'Data invalida']">
+                        <template v-slot:append>
+                            <q-icon name="event" class="cursor-pointer">
+                                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                                    <q-date :options="optionsFn" v-model="date">
+                                        <div class="row items-center justify-end">
+                                            <q-btn v-close-popup label="Close" color="primary" flat />
+                                        </div>
+                                    </q-date>
+                                </q-popup-proxy>
+                            </q-icon>
+                        </template>
                     </q-input>
 
                 </div>
@@ -58,11 +52,11 @@
                             <!-- <q-input outlined v-model="assunto"  /> -->
                              <q-select
                                 outlined
-                                v-model="Responsibleresult"
+                                v-model="responsibleResult"
                                 use-input
                                 input-debounce="0"
-                                :options="ResponsibleoptionsList"
-                                @filter="filterFn"
+                                :options="responsibleoptionsList"
+                                @filter="filterResponsible"
                                 use-chips
                                 multiple
                                 stack-label
@@ -83,7 +77,25 @@
             <div class="row">
                 <div class="col-11 q-ml-md q-mb-xl">
                     <div class="text-subtitle2">Adicionar peça(s) ao chamado </div>
-                    <q-input outlined v-model="assunto"  />
+                      <q-select
+                                outlined
+                                v-model="pieceResult"
+                                use-input
+                                input-debounce="0"
+                                :options="pieceOptionsList"
+                                @filter="filterPeaces"
+                                use-chips
+                                multiple
+                                stack-label
+                            >
+                                <template v-slot:no-option>
+                                    <q-item>
+                                    <q-item-section class="text-grey">
+                                        Sem Resultado
+                                    </q-item-section>
+                                    </q-item>
+                                </template>
+                            </q-select>
                 </div>
             </div>
 
@@ -115,59 +127,50 @@
                 <div class="col-11 row ">
                     <div class="text-subtitle2">Publico *</div><span style="margin-left: 3%;" class="text-weight-thin">Opção será exibida para peças de Comunicação. Obrigatório, pode selecionar mais que uma opção</span>
                 </div>
-                <div class=" col-11 row">
-                    <q-checkbox class="q-ml-sm" v-model="urgente" label="Ribeirão Preto" />
-                    <q-checkbox class="q-ml-sm" v-model="urgente" label="Uberaba" />
-                    <q-checkbox class="q-ml-sm" v-model="urgente" label="Guatapará" />
-                    <q-checkbox class="q-ml-sm" v-model="urgente" label="Colaboradores Externos" />
-                    <q-checkbox class="q-ml-sm" v-model="urgente" label="Todos" />
+
+                <div class="col-11 row" >
+                    <div v-for="checkbox in checkboxPublic" :key="checkbox.id">
+                        <q-checkbox class="q-ml-sm" v-model="urgente" :val="checkbox.id" :label="checkbox.cidade" />
+
+                    </div>
                 </div>
             </div>
 
            <ButtonSaveBack :buttonBack="true"/>
 
-        </q-card-section>
-        </q-card>
-        <!-- button float -->
-        <q-page-sticky position="bottom-right" :offset="[18, 18]">
-            <q-fab
-                v-model="fabRight"
-                vertical-actions-align="right"
-                color="primary"
-                icon="keyboard_arrow_up"
-                direction="up"
-            >
-                <q-fab-action label-position="left" color="primary" @click="onClick" icon="fas fa-pen" label="Instruções de preenchimento" />
-            </q-fab>
-        </q-page-sticky>
-        <!--end button float -->
-
+        </CardForm>
+       <FloatButton :options="[{'function':()=>{}, 'color':'primary', 'icon':'fas fa-pen', 'label':'Instruções de preenchimento'}]"/>
     </div>
 </template>
 
 <script>
 import ButtonSaveBack from 'src/components/utils/ButtonSaveBack.vue'
+import CardForm from 'src/components/utils/CardForm.vue'
+import FloatButton from 'src/components/utils/FloatButton.vue'
 
 export default {
   name: 'FormCalled',
-  components: { ButtonSaveBack },
+  components: { ButtonSaveBack, CardForm, FloatButton },
   data () {
     return {
-      arquivos: '',
-      informacoes: '',
-      pecas: '',
       porqueUrgente: '',
       prazo: '',
       assunto: '',
-      urgente: false,
+      urgente: [],
       urgenteText: '',
-      fabRight: false,
       date: '2019/02/01',
       info: '',
       // tag responsavel
-      Responsibleresult: [],
-      ResponsibleOptionsTotal: ['Google', 'Facebook', 'Twitter', 'Apple', 'Oracle'],
-      ResponsibleoptionsList: ['Google', 'Facebook', 'Twitter', 'Apple', 'Oracle']
+      responsibleResult: [],
+      responsibleOptionsTotal: ['Google', 'Facebook', 'Twitter', 'Apple', 'Oracle'],
+      responsibleoptionsList: ['Google', 'Facebook', 'Twitter', 'Apple', 'Oracle'],
+      // fim tag responsavel
+      // tag peça
+      pieceResult: [],
+      pieceOptionsTotal: ['Google', 'Facebook', 'Twitter', 'Apple', 'Oracle'],
+      pieceOptionsList: ['Google', 'Facebook', 'Twitter', 'Apple', 'Oracle'],
+      // fim tag peça
+      checkboxPublic: [{ cidade: 'Ribeirão Preto', id: 1 }, { cidade: 'Uberaba', id: 2 }, { cidade: 'Guatapará', id: 3 }, { cidade: 'Colaboradores Externos', id: 4 }, { cidade: 'Todos', id: 5 }]
     }
   },
   methods: {
@@ -181,21 +184,34 @@ export default {
         message: `${rejectedEntries.length} file(s) did not pass validation constraints`
       })
     },
-    onClick () {
-    },
-    save () {},
-    filterFn (val, update) {
+    filterResponsible (val, update) {
       if (val === '') {
         update(() => {
-          this.ResponsibleoptionsList = this.ResponsibleOptionsTotal
+          this.responsibleoptionsList = this.responsibleOptionsTotal
         })
         return
       }
 
       update(() => {
         const needle = val.toLowerCase()
-        this.ResponsibleoptionsList = this.ResponsibleOptionsTotal.filter(v => v.toLowerCase().indexOf(needle) > -1)
+        this.responsibleoptionsList = this.responsibleOptionsTotal.filter(v => v.toLowerCase().indexOf(needle) > -1)
       })
+    },
+    filterPeaces (val, update) {
+      if (val === '') {
+        update(() => {
+          this.pieceOptionsList = this.pieceOptionsTotal
+        })
+        return
+      }
+
+      update(() => {
+        const needle = val.toLowerCase()
+        this.pieceOptionsList = this.pieceOptionsTotal.filter(v => v.toLowerCase().indexOf(needle) > -1)
+      })
+    },
+    optionsFn (date) {
+      return date >= '2019/02/03' && date <= '2019/02/15'
     }
   },
   beforeMount () {
