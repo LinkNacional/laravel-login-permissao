@@ -26,6 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/users/permissions',[UsersPermissionController::class, 'permissions_from_user_logged']);
 
     Route::middleware('auth.user')->group(function () {
+        //
         Route::post('/users',[UserController::class, 'list_users_pagination']);
 
         Route::post('/users/permissions/save',[UsersPermissionController::class, 'save']);
@@ -51,13 +52,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/called',function(Request $request) {
         $called = Calleds::create($request->only('matter', 'deadline','urgent','why_urgent','infos','public'));
         $called->save();
-        return $called;
+        return json_encode($called);
     });
 
     Route::put('/called',function(Request $request) {
         $called = Calleds::find($request->id);
         $called->update($request->only('matter', 'deadline','urgent','why_urgent','infos','public'));
-        return $called;
+        return json_encode($called);
     });
 
     Route::delete('/called',function(Request $request) {
