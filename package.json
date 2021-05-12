@@ -10,7 +10,7 @@
         "serve": "php artisan serve",
         "production": "mix --production",
         "test": "php artisan test",
-        "websockets":"php artisan websockets:serve"
+        "websockets": "php artisan websockets:serve"
     },
     "devDependencies": {
         "axios": "^0.21",

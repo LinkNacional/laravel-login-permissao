@@ -8,6 +8,7 @@ use App\Models\Permission;
 use App\Models\Group;
 use App\Models\Access_log;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\PartController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Events\Hello;
@@ -180,7 +181,7 @@ Route::middleware('auth')->group(function () {
             $log = Access_log::where('user_id',$id)->orderByDesc('hour_access')->get();
             $return = [];
             $return[] = (object) [
-                'user' => $user, 
+                'user' => $user,
                 'details' => $user->detail
             ];
 
@@ -245,3 +246,5 @@ Route::middleware('auth')->group(function () {
  Route::get('/emmitEvent/{id}',function ($id) {
      broadcast(new Hello($id));
  });
+
+ Route::get('/testepart',[PartController::class, 'index']);

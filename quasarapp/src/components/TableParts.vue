@@ -1,18 +1,14 @@
 <template>
-  <div v-show="!this.isLoaded" class="q-pa-md">
+  <div>
     <q-table
-      :dense="$q.screen.lt.sm"
-      :title="this.title"
+      title="Peças"
       :data="data"
       :columns="columns"
-      row-key="id"
-      :pagination.sync="pagination"
-      :rows-per-page-options="rows_per_page_options"
-      :loading="loadingTable"
-      >
-
+      row-key="name"
+      class="q-mt-md q-mx-md"
+    >
       <template v-slot:top-right>
-        <q-input borderless dense debounce="600" v-model="filter"  :to="{ path: `/users/search?text_search=${filter}` }" placeholder="Busca">
+        <q-input borderless dense debounce="600" v-model="filter" placeholder="Buscar">
           <template v-slot:append>
             <q-icon name="search" />
           </template>
@@ -25,216 +21,90 @@
             v-for="col in props.cols"
             :key="col.name"
             :props="props"
-            v-show="col.label != ''"
           >
-            {{ col.label }}
+              {{ col.label }}
           </q-th>
         </q-tr>
       </template>
 
       <template v-slot:body="props">
-        <q-tr :props="props" style="cursor:pointer" @click="props.expand = !props.expand">
+        <q-tr :props="props">
           <q-td
             v-for="col in props.cols"
             :key="col.name"
             :props="props"
-            v-show="col.name.substring(1,0) != '0'"
           >
-           <!-- @click="props.expand = !props.expand"  -->
-          <i style="margin-left: 10%;" v-if="col.name === 'Status'" class="fas fa-circle" :style="{color: col.value == 1 ? 'green':'gray'}"></i>
-          <q-btn v-else-if="col.name == 'Permissões'"  :to="{ path: '/users/permission/'+props.key }" style="margin-left: 5%;" size="sm" color="accent" round dense ><i class="fas fa-pen"></i></q-btn>
-          <span v-else >{{ col.value }}</span>
+            <q-icon v-if="col.name=='color'" name="circle" size='18px' v-bind:style="{color: col.value}"/>
+
+            <q-btn v-else-if="col.name=='edit'" round dense size='sm' icon='edit' color='accent'/>
+
+            <span v-else>{{ col.value }}</span>
           </q-td>
         </q-tr>
-
-        <q-tr
-        v-show="props.expand"
-        :props="props"
-        v-for="col in props.cols"
-        :key="col.name"
-        >
-
-          <q-td class="bg-grey-2" colspan="100%" v-show="col.label == '' && col.field != ''">
-            <div class="text-left">
-              {{ col.field }}: {{ col.value }}
-            </div>
-          </q-td>
-        </q-tr>
-
-         <q-td
-        v-show="props.expand"
-         class="bg-grey-2" colspan="100%">
-            <div class="text-left">
-              <q-btn class="full-width" text-color="black" color="standard" :to="{ path: '/users/edit/'+props.key }" label="Editar usuário" />
-            </div>
-          </q-td>
-
       </template>
-      <template v-slot:bottom>
-        <div class=" row items-center justify-end" style="margin-left:55%">
-          <div class="q-table__separator col"></div>
-          <div class="q-table__control" >
-            <span class="q-table__bottom-item">paginas:</span>
-
-            <q-select :disable="loadingTable ?'disable':'enable'" dense v-model="rowsPerPage" :options="rows_per_page_options" />
-          </div>
-          <div class="q-table__control">
-            <span class="q-table__bottom-item">{{pagination.page}}-{{pagination.lastPage}} de {{pagination.rowsNumber}}</span>
-            <!-- |< -->
-              <q-btn @click="firstPage()" flat color="primary" :disable="pagination.page==1 || loadingTable ?'disable':'enable'" icon="first_page"/>
-
-            <!-- < -->
-              <q-btn @click="previousPage()"  flat :disable="pagination.page==1 || loadingTable ?'disable':'enable'" color="primary" icon="chevron_left"/>
-
-            <!-- > -->
-              <q-btn @click="nextPage()" flat :disable="pagination.page==pagination.lastPage || loadingTable?'disable':'enable'" color="primary" icon="chevron_right"/>
-
-            <!-- >| -->
-              <q-btn @click="lastPage()" flat :disable="pagination.page==pagination.lastPage || loadingTable?'disable':'enable'" color="primary" icon="last_page"/>
-
-          </div>
-        </div>
-      </template>
-
     </q-table>
+
+    <q-page-sticky position="bottom-right" :offset="[40, 30]">
+      <q-fab
+        v-model="fab2"
+        label="Ações"
+        label-position="bottom"
+        color="primary"
+        icon="keyboard_arrow_left"
+        direction="left"
+        :hide-label="hideLabels"
+        class="float-right"
+      >
+        <q-fab-action :hide-label="hideLabels" color="positive" :to="{ path: '/parts/create' }" icon="add" label="Criar Peça" />
+      </q-fab>
+    </q-page-sticky>
+
   </div>
 </template>
 
 <script>
-import { axiosInstance } from 'boot/axios'
-
 export default {
-  name: 'tablelist',
-  props: ['title'],
   data () {
     return {
-      filter: '',
-      total_num_rows: 0,
-      isLoaded: true,
-      rowsPerPage: 7,
-      loadingTable: false,
-      rows_per_page_options: [5, 7, 10, 20, 50, 'Todos'],
-      pagination: {
-        page: 1,
-        rowsPerPage: 7,
-        rowsNumber: 0,
-        lastPage: 0
-      },
-
+      visibleColumns: ['title', 'area', 'cost', 'edit'],
       columns: [
-        { name: '0id', align: 'left', label: '', field: '' },
-        { name: 'Permissões', align: 'left', label: 'Permissões', field: 'Permissões' },
-        { name: 'Status', align: 'left', label: 'status', field: 'status', sortable: false, required: true },
-        { name: 'name', required: true, label: 'Nome', align: 'center', field: row => row.name, format: val => `${val}`, sortable: false },
-        { name: 'E-mail', align: 'center', label: 'E-mail', field: 'email', sortable: false },
-        { name: 'Departamento', align: 'left', label: 'Departamento', field: 'departamento', sortable: false, required: true },
-        { name: '0gerente', align: 'center', label: '', field: 'Gestor do usuário', sortable: false, required: true },
-        { name: '0Unidade', align: 'center', label: '', field: 'Unidade', sortable: false, required: true },
-        { name: '0Sobrenome', align: 'center', label: '', field: 'Sobrenome', sortable: false, required: true },
-        { name: '0Fone', align: 'center', label: '', field: 'Telefone', sortable: false, required: true },
-        { name: '0Cargo', align: 'center', label: '', field: 'Cargo', sortable: false, required: true },
-        { name: '0Ramal', align: 'center', label: '', field: 'Ramal', sortable: false, required: true },
-        { name: '0Hora_Técnica', align: 'center', label: '', field: 'Hora Técnica', sortable: true, required: true }
+        { name: 'color', field: 'color', align: 'right', format (value) { return '#' + value } },
+        { name: 'title', align: 'left', label: 'Peça', field: 'title', sortable: true, required: true },
+        { name: 'area', align: 'left', label: 'Área de Comunicação', field: 'area', sortable: true, required: true },
+        { name: 'cost', align: 'left', label: 'Custo Externo', field: 'cost', sortable: true, format (value) { return 'R$ ' + value.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.') }, required: true },
+        { name: 'edit', align: 'left', label: 'Editar', field: 'edit' }
       ],
-      data: []
+      data: [
+        {
+          color: '98E05C',
+          title: 'Banner',
+          area: 'Mídia Digital',
+          cost: 17350,
+          edit: ''
+        },
+        {
+          color: 'FF0000',
+          title: 'Post Facebook',
+          area: 'Mídia Digital',
+          cost: 950,
+          edit: ''
+        },
+        {
+          color: 'B5579F',
+          title: 'Outdoor',
+          area: 'Criação',
+          cost: 770,
+          edit: ''
+        },
+        {
+          color: '0000FF',
+          title: 'Embalagem',
+          area: 'Criação',
+          cost: 650.20,
+          edit: ''
+        }
+      ]
     }
-  },
-  watch: {
-    filter: function () {
-      axiosInstance.post(`/users?page=${this.pagination.page}&rows=${this.pagination.rowsPerPage}&search=${this.filter}`)
-        .then((response) => {
-          this.data = []
-          this.formatTable(response.data.users)
-          this.pagination.rowsNumber = response.data.total_num_rows
-          this.pagination.lastPage = this.pagination.rowsPerPage === 0 ? 1 : Math.ceil(this.pagination.rowsNumber / this.pagination.rowsPerPage)
-          this.loadStop()
-        })
-    },
-    rowsPerPage: function () {
-      this.loadingTable = true
-      this.pagination.rowsPerPage = this.rowsPerPage === 'Todos' ? 0 : this.rowsPerPage
-      this.pagination.page = 1
-      this.updatePage()
-    }
-  },
-  methods: {
-
-    // paginação
-    nextPage () {
-      console.log('nextPage')
-      // this.$q.loading.show()
-      this.loadingTable = true
-      this.pagination.page++
-      this.updatePage()
-    },
-    previousPage () {
-      console.log('previousPage')
-      // this.$q.loading.show()
-      this.loadingTable = true
-      this.pagination.page--
-      this.updatePage()
-    },
-    firstPage () {
-      console.log('firstPage')
-      // this.$q.loading.show()
-      this.loadingTable = true
-      this.pagination.page = 1
-      this.updatePage()
-    },
-    lastPage () {
-      console.log('lastPage')
-      this.loadingTable = true
-      this.pagination.page = this.pagination.lastPage
-      this.updatePage()
-    },
-    updatePage () {
-      axiosInstance.post(`/users?page=${this.pagination.page}&rows=${this.pagination.rowsPerPage}`)
-        .then((response) => {
-          this.data = []
-          this.formatTable(response.data.users)
-          console.log(response.data.users)
-          this.pagination.rowsNumber = response.data.total_num_rows
-          this.pagination.lastPage = this.pagination.rowsPerPage === 0 ? 1 : Math.ceil(this.pagination.rowsNumber / this.pagination.rowsPerPage)
-          this.loadStop()
-        })
-        .catch((error) => {
-          console.log(error)
-          this.loadStop()
-        })
-    },
-    // paginação
-
-    formatTable (infos) {
-      this.data = []
-      infos.forEach((user) => {
-        this.data.push({
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          departamento: user.department,
-          administrador: user.admin,
-          Unidade: user.unit,
-          Sobrenome: user.lastname,
-          Telefone: user.phone,
-          Cargo: user.role,
-          Ramal: user.ramal,
-          'Hora Técnica': user.technical_time,
-          status: user.active,
-          gerente: user.admin
-
-        })
-      })
-      this.loadStop()
-    },
-    loadStop () {
-      this.$q.loading.hide()
-      this.isLoaded = false
-      this.loadingTable = false
-    }
-  },
-  beforeMount () {
-    this.$q.loading.show()
-    this.updatePage()
   }
 }
 </script>
