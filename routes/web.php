@@ -246,5 +246,3 @@ Route::middleware('auth')->group(function () {
  Route::get('/emmitEvent/{id}',function ($id) {
      broadcast(new Hello($id));
  });
-
- Route::get('/testepart',[PartController::class, 'index']);
