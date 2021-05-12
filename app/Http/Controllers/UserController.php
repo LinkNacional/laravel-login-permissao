@@ -9,6 +9,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Permission;
 use Doctrine\DBAL\Schema\Index;
+use App\Models\Access_log;
+use App\Models\Department;
 
 /**
      * creating a new resource.
@@ -16,63 +18,91 @@ use Doctrine\DBAL\Schema\Index;
      * @return \Illuminate\Http\Response
      */
 class UserController extends Controller {
-    public function create(Request $request) {
-    }    
+    function list_users_pagination(Request $request) {
+        $page = $request->query('page');
+        $num_rows = $request->query('rows');
+        //opcional
+        $search = $request->query('search');
+        //opcional
 
-    /**
-         * edit the specified resource.
-         *
-         * @param  Request  $request
-         * @return \Illuminate\Http\Response
-         */
-    public function edit(Request $request) {
-        $id = Auth::user()->id;
-        $user = User::find($id);
-        $user->name = $request->name;
-        $user->email = $request->email;
-        if ($request->password == '' || $request->password == null) {
-            $user->password = Hash::make($request->password);
+        $total_num_rows = User::query()->get()->count();
+        if ($num_rows == 0) {
+            $num_rows = $total_num_rows;
         }
-        $user->save();
-        $user->Permissions()->sync($request->permissions);
-        $credentials = $request->only('email', 'password');
-        if (Auth::attempt($credentials)) {
-            return redirect()->route('editUser');
-        }
-        return redirect()->route('login');
-    }
-
-    /**
-    * Display a listing of the resource.
-    *
-    * @return \Illuminate\Http\Response
-    */
-    public function index() {
-        $users = [];
-        foreach (User::all() as $user) {
-            $users[] = [
-                'user' => $user,
-                'permission' => $user->permission,
-                'detail' => $user->detail,
-                'departament' => $user->detail->departament,
-                'unit' => $user->detail->unit,
-                'admin' => $user->detail->admin
-            ];
-        }
-        return $users;
-    }
-
-    /**
-       * Display permission from user.
-        * @param  int  $id
-       * @return \Illuminate\Http\Response
-       */
-    public function permissions($id) {
-        $permission = User::find($id);
-        if (count($permission->permission) != 0) {
-            return $permission->permission;
+        if ($search) {
+            $index = User::query()
+                ->where('users.name', 'like', "%{$search}%")
+                ->orWhere('users.email', 'like', "%{$search}%")
+                ->leftJoin('details', 'users.detail_id', '=', 'details.id')
+                ->leftJoin('users AS admin', 'details.adm_user', '=', 'admin.id')
+                ->leftJoin('departments', 'details.department_id', '=', 'departments.id')
+                ->select('users.*', 'details.unit', 'details.lastname','details.phone','details.role','details.ramal','details.technical_time','admin.name AS admin','departments.name AS department')
+                ->orderBy('users.name')
+                ->get();
         } else {
-            return response('user not found',403);
+            $index = User::query()
+                    ->offset(($page - 1) * $num_rows)
+                    ->limit($num_rows)
+                    ->where('users.name', 'like', "%{$search}%")
+                    ->orWhere('users.email', 'like', "%{$search}%")
+                    ->leftJoin('details', 'users.detail_id', '=', 'details.id')
+                    ->leftJoin('users AS admin', 'details.adm_user', '=', 'admin.id')
+                    ->leftJoin('departments', 'details.department_id', '=', 'departments.id')
+                    ->select('users.*', 'details.unit', 'details.lastname','details.phone','details.role','details.ramal','details.technical_time','admin.name AS admin','departments.name AS department')
+                    ->orderBy('users.name')
+                    ->get();
+        }
+        return ['users' => $index, 'total_num_rows' => $total_num_rows];
+    }
+
+    function get_log($id) {
+        $log = Access_log::where('user_id',$id)->orderByDesc('hour_access')->get();
+        $return = [];
+        foreach ($log as $key => $value) {
+            $return[] = [
+                'data' => $value->hour_access,
+                'ip' => $value->ip,
+                'status' => $value->status,
+            ];
+        };
+        return $return;
+    }
+
+    function edit_user($id,Request $request) {
+        $user = User::find($id);
+        $technical_time = $request->input('technical_time');
+        $user->detail->technical_time = $technical_time;
+        $user->detail->save();
+        return $user;
+    }
+
+    function get_informations($id) {
+        $user = User::find($id);
+        $log = Access_log::where('user_id',$id)->orderByDesc('hour_access')->get();
+        $return = [];
+        $return[] = (object) [
+            'user' => $user, 
+            'details' => $user->detail,
+            'department_name' => Department::find($user->detail->department_id)->name,
+            'adm_user_name' => User::find($user->detail->adm_user)->name,
+        ];
+
+        foreach ($log as $value) {
+            $return[] = [
+                'data' => $value->hour_access,
+                'ip' => $value->ip,
+                'status' => $value->status,
+            ];
+        };
+        return $return;
+    }
+
+    function verify_user_exist($id) {
+        $permission = User::find($id);
+        if ($permission) {
+            return view ( 'app' );
+        } else {
+            return response()->view('error.404',[], 404);
         }
     }
 }

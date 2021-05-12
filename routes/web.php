@@ -2,15 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
-use App\Models\Detail;
-use App\Models\Permission;
-use App\Models\Group;
-use App\Models\Access_log;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PartController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\UserController;
 use App\Events\Hello;
 
 /*
@@ -24,6 +20,10 @@ use App\Events\Hello;
 |
 */
 
+Route::get('/called/new',function() {
+    return view ( 'app' );
+});
+
 Route::get('/',function() {
     if (Auth::check()) {
         return redirect()->route('dashboard');
@@ -32,86 +32,17 @@ Route::get('/',function() {
     }
 });
 
-Route::get('/login',function() {
-    if (!Auth::check()) {
-        return view ( 'app' );
-    } else {
-        return redirect()->route('dashboard');
-    }
-})->name('login');
-
-Route::post('/login',[LoginController::class, 'authenticate']);
-
-Route::post('/logout',[LoginController::class, 'logout']);
+Route::get('/login',[LoginController::class, 'verifyLogin'])->name('login');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard',function() {
-        return view ( 'app' );
-    })->name('dashboard');
+    //
+    Route::get('/dashboard',function() {return view ( 'app' );})->name('dashboard');
 
-    //permission user loged
-    Route::post('/users/permissions',function() {
-        foreach (Auth::user()->permission as $permission) {
-            $permissions[$permission->id] = [
-                $permission->name
-            ];
-        }
-        return $permissions;
-    });
     Route::middleware('auth.user')->group(function () {
-        Route::get('/users',function() {
-            return view ( 'app' );
-        });
+        //
+        Route::get('/users',function() {return view ( 'app' );});
 
-        Route::get('/users/permission/{id}',function($id) {
-            $permission = User::find($id);
-            if ($permission) {
-                return view ( 'app' );
-            } else {
-                return response()->view('error.404',[], 404);
-            }
-        });
-
-        //tabela de usuarios
-        Route::post('/users',function(Request $request) {
-            $page = $request->query('page');
-            $num_rows = $request->query('rows');
-            //opcional
-            $search = $request->query('search');
-            //opcional
-
-            $total_num_rows = User::query()->get()->count();
-            if ($num_rows == 0) {
-                $num_rows = $total_num_rows;
-            }
-            $index = User::query()
-            ->offset(($page - 1) * $num_rows)
-            ->limit($num_rows)
-            ->where('users.name', 'like', "%{$search}%")
-            ->orWhere('users.email', 'like', "%{$search}%")
-            ->leftJoin('details', 'users.detail_id', '=', 'details.id')
-            ->leftJoin('users AS admin', 'details.adm_user', '=', 'admin.id')
-            ->leftJoin('departments', 'details.department_id', '=', 'departments.id')
-            ->select('users.*', 'details.unit', 'details.lastname','details.phone','details.role','details.ramal','details.technical_time','admin.name AS admin','departments.name AS department')
-            ->orderBy('users.name')
-            ->get();
-            return ['users' => $index, 'total_num_rows' => $total_num_rows];
-        });
-
-        ///users/permissions
-        Route::post('/users/permissions/save',function(Request $request) {
-            $id = $request->input('id');
-            $permissions = $request->input('permissions');
-            $groups = $request->input('groups');
-            $admin = $request->input('admin');
-            $user = User::find($id);
-            $user->permission()->sync([]);
-            foreach ($permissions as $key => $value) {
-                $user->permission()->save(Permission::where('name', $value)->first());
-            }
-            $permissionsAll = Permission::all();
-            $permissionsChecked = $permissions;
-        });
+        Route::get('/users/permission/{id}',[permissionController::class, 'verify_permission_exist']);
 
         Route::post('/users/permissions/{id}',function($id) {
             $user = User::find($id);
@@ -195,54 +126,54 @@ Route::middleware('auth')->group(function () {
             return $return;
         });
         //users/edit
+        Route::get('/users/edit/{id}',[UserController::class, 'verify_user_exist']);
     });
 });
 
+ //WS
+ Route::get('/emmitEvent/{id}',function ($id) {broadcast(new Hello($id));});
+
 //remover na produção
 
- Route::post('/pupolarBanco',function() {
-     $grp = Group::factory()->count(20)->create();
-     Detail::factory()->count(3)->create();
-     $User = User::factory()->count(20)->create();
-     $permission = Permission::factory()->count(20)->create();
-     User::all()->each(function ($user) use ($permission) {
-         $user->permission()->saveMany($permission);
-     });
-     Group::all()->each(function ($group) use ($permission) {
-         $group->permission()->saveMany($permission);
-     });
-     $permUser = new Permission();
-     $permUser->name = 'users';
-     $permUser->Description = 'Permissão para controle de usuario';
-     $permUser->save();
-     return 'feito';
- });
+//  Route::post('/pupolarBanco',function() {
+//      $grp = Group::factory()->count(20)->create();
+//      Detail::factory()->count(3)->create();
+//      $User = User::factory()->count(20)->create();
+//      $permission = Permission::factory()->count(20)->create();
+//      User::all()->each(function ($user) use ($permission) {
+//          $user->permission()->saveMany($permission);
+//      });
+//      Group::all()->each(function ($group) use ($permission) {
+//          $group->permission()->saveMany($permission);
+//      });
+//      $permUser = new Permission();
+//      $permUser->name = 'users';
+//      $permUser->Description = 'Permissão para controle de usuario';
+//      $permUser->save();
+//      return 'feito';
+//  });
 
- Route::post('/createuser',function (Request $request) {
-     $user = new User;
-     $user->name = $request->name;
-     $user->email = $request->email;
-     $user->password = Hash::make($request->password);
-     $user->detail_id = 1;
-     $user->save();
-     $user->permission()->sync($request->permissions);
-     $credentials = $request->only('email', 'password');
-     if (Auth::attempt($credentials)) {
-         return $user;
-     }
-     abort(409);
-     //  return redirect()->route('login');
- });
+//  Route::post('/createuser',function (Request $request) {
+//      $user = new User;
+//      $user->name = $request->name;
+//      $user->email = $request->email;
+//      $user->password = Hash::make($request->password);
+//      $user->detail_id = 1;
+//      $user->save();
+//      $user->permission()->sync($request->permissions);
+//      $credentials = $request->only('email', 'password');
+//      if (Auth::attempt($credentials)) {
+//          return $user;
+//      }
+//      abort(409);
+//      //  return redirect()->route('login');
+//  });
 
- Route::post('/deleteuser',function (Request $request) {
-     $user = User::find($request->id);
-     if (!$user->delete()) {
-         abort(409);
-     } else {
-         abort(204);
-     }
- });
-
- Route::get('/emmitEvent/{id}',function ($id) {
-     broadcast(new Hello($id));
- });
+//  Route::post('/deleteuser',function (Request $request) {
+//      $user = User::find($request->id);
+//      if (!$user->delete()) {
+//          abort(409);
+//      } else {
+//          abort(204);
+//      }
+//  });

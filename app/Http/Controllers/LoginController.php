@@ -30,15 +30,15 @@ class LoginController extends Controller {
         $credentials = $request->only('email', 'password');
         if (Auth::attempt($credentials,$request->remember)) {
             $request->session()->regenerate();
-            LoginController::save_access_log($request,'ok');
+            $this->save_access_log($request,'ok');
             return response('logado',200);
         }
-        LoginController::save_access_log($request,'fail');
+        $this->save_access_log($request,'fail');
 
         return response('email ou senha invalida', 401);
     }
 
-    public static function save_access_log(Request $request,$status) {
+    private static function save_access_log(Request $request,$status) {
         $id = User::select('id')->where('email',$request->email)->get();
 
         $log = new Access_log();
@@ -48,6 +48,14 @@ class LoginController extends Controller {
         $log->save();
         if (isset($id[0])) {
             broadcast(new Hello($id[0]->id));
+        }
+    }
+
+    public static function verifyLogin() {
+        if (!Auth::check()) {
+            return view ( 'app' );
+        } else {
+            return redirect()->route('dashboard');
         }
     }
 }

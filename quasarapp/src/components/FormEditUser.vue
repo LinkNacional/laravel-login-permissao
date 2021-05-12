@@ -80,8 +80,10 @@ export default {
         this.name = this.user.name
         this.sobrenome = this.details.lastname
         this.email = this.user.email
-        // this.departamento = this.details.lastname
-        // this.gerente
+
+        this.departamento = this.infos.adm_user_name
+        this.gerente = this.infos.department_name
+
         this.unidade = this.details.unit
         this.telefone = this.details.phone
         this.cargo = this.details.role
