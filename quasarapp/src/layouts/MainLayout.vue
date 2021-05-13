@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf" >
-    <q-header style="background-color:#DAE300 ;color:#343B45" elevated>
+    <q-header elevated>
       <q-toolbar>
         <q-btn
           flat
@@ -12,10 +12,10 @@
         />
 
         <q-toolbar-title>
-          sistema de chamados
+          Sistema de Chamados
         </q-toolbar-title>
 
-        <div><a href='#' @click="logout">sair</a></div>
+        <div><a href='#' @click="logout">Sair</a></div>
       </q-toolbar>
     </q-header>
 
@@ -69,6 +69,11 @@ const linksData = [
     caption: 'Menu de chamados',
     icon: 'fas fa-headset',
     link: '/called/new'
+  },
+  {
+    title: 'Peças',
+    icon: 'construction',
+    link: '/parts'
   }
 
 ]

@@ -10,7 +10,7 @@ const routes = [
       { path: '/users/permission/:id', component: () => import('src/pages/users/permissions.vue'), props: true },
       { path: '/users/edit/:id', component: () => import('src/pages/users/edit.vue'), props: true },
       { path: 'parts', component: () => import('src/pages/parts/part.vue') },
-      { path: '/parts/create', component: () => import('src/pages/parts/create.vue') }
+      { path: '/parts/create', component: () => import('src/pages/parts/create.vue') },
       { path: '/called/new', component: () => import('src/pages/called/new.vue'), props: true }
     ]
   },
