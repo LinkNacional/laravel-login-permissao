@@ -19,7 +19,6 @@
                 </template>
               </q-input>
 
-              <q-checkbox v-model="remember" label="Manter conectado" />
             </div>
           </q-card-section>
           <q-card-actions class="q-px-md">

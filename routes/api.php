@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Calleds;
 use App\Http\Controllers\UsersPermissionController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 
 /*

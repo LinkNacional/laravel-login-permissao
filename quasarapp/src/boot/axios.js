@@ -9,7 +9,7 @@ import axios from 'axios'
 var result = 'http://127.0.0.1:8000'
 
 const axiosInstance = axios.create({
-  baseURL: result,
+  baseURL: result + '/api',
   timeout: 90000,
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' }

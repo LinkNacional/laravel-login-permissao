@@ -10,11 +10,11 @@
                     <div class="text-subtitle2">Prazo ideal *</div>
                     <!-- <q-input outlined v-model="assunto"  /> -->
 
-                    <q-input outlined v-model="date" mask="date" :rules="['date',val => optionsFn(val) || 'Data invalida']">
+                    <q-input outlined v-model="date" mask="date" :rules="['date',val => validDate(val) || 'Data invalida']">
                         <template v-slot:append>
                             <q-icon name="event" class="cursor-pointer">
                                 <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                                    <q-date :options="optionsFn" v-model="date">
+                                    <q-date :options="validDate" v-model="date">
                                         <div class="row items-center justify-end">
                                             <q-btn v-close-popup label="Close" color="primary" flat />
                                         </div>
@@ -130,7 +130,7 @@
 
                 <div class="col-11 row" >
                     <div v-for="checkbox in checkboxPublic" :key="checkbox.id">
-                        <q-checkbox class="q-ml-sm" v-model="urgente" :val="checkbox.id" :label="checkbox.cidade" />
+                        <q-checkbox class="q-ml-sm" v-model="urgentes" :val="checkbox.id" :label="checkbox.cidade" />
 
                     </div>
                 </div>
@@ -156,9 +156,10 @@ export default {
       porqueUrgente: '',
       prazo: '',
       assunto: '',
-      urgente: [],
+      urgentes: [],
+      urgente: false,
       urgenteText: '',
-      date: '2019/02/01',
+      date: this.getToday(),
       info: '',
       // tag responsavel
       responsibleResult: [],
@@ -210,8 +211,16 @@ export default {
         this.pieceOptionsList = this.pieceOptionsTotal.filter(v => v.toLowerCase().indexOf(needle) > -1)
       })
     },
-    optionsFn (date) {
-      return date >= '2019/02/03' && date <= '2019/02/15'
+    validDate (date) {
+      const today = this.getToday()
+      return date >= today
+    },
+    getToday () {
+      const today = new Date()
+      const dd = String(today.getDate()).padStart(2, '0')
+      const mm = String(today.getMonth() + 1).padStart(2, '0') // January is 0!
+      const yyyy = today.getFullYear()
+      return yyyy + '/' + mm + '/' + dd
     }
   },
   beforeMount () {

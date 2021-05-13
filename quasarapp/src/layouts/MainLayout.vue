@@ -59,10 +59,16 @@ const linksData = [
     link: '/dashboard'
   },
   {
-    title: 'usuários',
+    title: 'Usuários',
     caption: 'Menu de usuários',
     icon: 'supervisor_account',
     link: '/users'
+  },
+  {
+    title: 'Chamados',
+    caption: 'Menu de chamados',
+    icon: 'fas fa-headset',
+    link: '/called/new'
   }
 
 ]
