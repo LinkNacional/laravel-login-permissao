@@ -78,9 +78,6 @@ export default {
 </script>
 
 <style>
-.q-card {
-  width: 360px;
-}
 .background {
   background-image: radial-gradient(circle at 50% 95%, #f7ff05, #a9dd18);
 }

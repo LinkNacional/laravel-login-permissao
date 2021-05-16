@@ -3,14 +3,16 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\PartController;
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Permission;
 use App\Models\Access_log;
-use Illuminate\Support\Facades\Hash;
-use App\Http\Controllers\UserController;
 use App\Events\Hello;
+use App\Models\Calleds;
+use App\Models\Sectors;
+use App\Models\Parts;
+use App\Http\Controllers\UsersPermissionController;
+use App\Http\Controllers\UserController;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,8 +39,11 @@ Route::get('/',function() {
 
 Route::get('/login',[LoginController::class, 'verifyLogin'])->name('login');
 
+Route::post('/myapi/login',[LoginController::class, 'authenticate']);
+
 Route::middleware('auth')->group(function () {
     //
+
     Route::get('/dashboard',function() {return view ( 'app' );})->name('dashboard');
 
     Route::middleware('auth.user')->group(function () {
@@ -119,7 +124,7 @@ Route::middleware('auth')->group(function () {
                 'details' => $user->detail
             ];
 
-            foreach ($log as $key => $value) {
+            foreach ($log as  $value) {
                 $return[] = [
                     'data' => $value->hour_access,
                     'ip' => $value->ip,
@@ -128,9 +133,69 @@ Route::middleware('auth')->group(function () {
             };
             return $return;
         });
-        //users/edit
         Route::get('/users/edit/{id}',[UserController::class, 'verify_user_exist']);
+
+        //auth.user api
+        Route::post('/myapi/users',[UserController::class, 'list_users_pagination']);
+
+        Route::post('/myapi/users/permissions/save',[UsersPermissionController::class, 'save']);
+
+        Route::post('/myapi/users/permissions/{id}',[UsersPermissionController::class, 'permissions_from_user']);
+
+        Route::post('/myapi/users/edit/{id}/log',[UserController::class, 'get_log']);
+
+        Route::post('/myapi/users/edit/{id}/save',[UserController::class, 'edit_user']);
+
+        Route::post('/myapi/users/edit/{id}',[UserController::class, 'get_informations']);
+        //fim auth.user api
     });
+
+    //auth api
+    Route::post('/myapi/logout',[LoginController::class, 'logout']);
+
+    Route::post('/myapi/users/permissions',[UsersPermissionController::class, 'permissions_from_user_logged']);
+
+    //called
+    Route::get('/myapi/called',function() {
+        return json_encode(Calleds::all());
+    });
+
+    Route::get('/myapi/called/{id}',function($id) {
+        return json_encode(Calleds::find($id));
+    });
+
+    Route::post('/myapi/called',function(Request $request) {
+        $called = Calleds::create($request->only('matter', 'deadline','urgent','why_urgent','infos'));
+        $called->responsables()->sync($request->input('responsibles'));
+        $called->parts()->sync($request->input('parts'));
+        $called->sectors()->sync($request->input('sectors'));
+        $called->save();
+        return json_encode($called);
+    });
+
+    Route::post('/myapi/called/request',function() {
+        return [User::all(), Parts::all(),  Sectors::all()];
+    });
+
+    Route::put('/myapi/called',function(Request $request) {
+        $called = Calleds::find($request->id);
+        $called->update($request->only('matter', 'deadline','urgent','why_urgent','infos'));
+        return json_encode($called);
+    });
+
+    Route::delete('/myapi/called',function(Request $request) {
+        $called = Calleds::find($request->id);
+        $called->delete();
+    });
+    //fim called
+
+    //sectors
+    Route::get('/myapi/sectors',function() {
+        return json_encode(Sectors::all());
+    });
+    //fim sectors
+
+    //fim auth api
 });
 
  //WS
